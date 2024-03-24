@@ -18,10 +18,9 @@ import { Check } from '@mui/icons-material';
 import { SnackbarProvider, enqueueSnackbar, useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 
-export default function Auth({
-    setRedirectSnackbarOpen,
-    setSuccessSnackbarOpen,
-}) {
+export default function Auth(
+) {
+    const numberOfKeysPressed = React.useRef(0)
     const navigate = useNavigate();
     const email = import.meta.env.VITE_APP_EMAIL;
     const pw = 'foo1';
@@ -100,11 +99,11 @@ export default function Auth({
                 >
                     {' '}
                     <Typography
-                        variant='h5'
+                        variant='h4'
                         sx={{
                             fontFamily: 'Nunito',
-                            fontWeight: '300',
-                            mb: 1.5,
+                            fontWeight: '400',
+                            mb: 2,
                             mt: -3,
                         }}
                     >
