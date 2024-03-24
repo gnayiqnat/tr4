@@ -11,6 +11,7 @@ import Dashboard from './Dashboard.jsx';
 
 import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 import { isMobile } from 'react-device-detect';
+import FourOFourPage from './404.jsx';
 
 export default function App() {
     const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
@@ -97,7 +98,11 @@ export default function App() {
                         <NavBar />
                         <Routes>
                             <Route path='/' element={<Auth />} />
-                            <Route path='/dashboard' element={<Dashboard />} />
+                            <Route
+                                path='/dashboard'
+                                element={<Dashboard />}
+                            />{' '}
+                            <Route path='*' element={<FourOFourPage />} />
                         </Routes>
                     </BrowserRouter>
                 </SnackbarProvider>
