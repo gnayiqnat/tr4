@@ -15,7 +15,7 @@ import checkIfSignedIn from './supabaseClient';
 import { motion, useAnimate } from 'framer-motion';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import { Check } from '@mui/icons-material';
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import { SnackbarProvider, enqueueSnackbar, useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 
 export default function Auth({
@@ -48,9 +48,11 @@ export default function Auth({
     }
 
     async function handleSignedIn() {
-        setSuccessSnackbarOpen(true);
+        enqueueSnackbar("You're now logged in.", {
+            variant: 'success',
+        });
         setTimeout(() => {
-            setRedirectSnackbarOpen(true);
+            enqueueSnackbar('Redirecting, please wait', { variant: 'info' });
         }, 1000);
 
         setIsAuthenticated(true);
@@ -92,7 +94,7 @@ export default function Auth({
                         alignItems: 'center',
                         flexDirection: 'column',
 
-                        width: '99vw',
+                        width: '96vw',
                         height: '96dvh',
                     }}
                 >
@@ -100,13 +102,13 @@ export default function Auth({
                     <Typography
                         variant='h5'
                         sx={{
-                            fontFamily: 'Inter',
-                            fontWeight: '600',
+                            fontFamily: 'Nunito',
+                            fontWeight: '300',
                             mb: 1.5,
                             mt: -3,
                         }}
                     >
-                        Login
+                        Log in
                     </Typography>
                     <Box
                         noValidate
@@ -116,6 +118,14 @@ export default function Auth({
                         }}
                     >
                         <TextField
+                            onKeyDown={(e) => {
+                                e.key === 'Enter' &&
+                                    !isAuthenticated &&
+                                    enqueueSnackbar('Password is incorrect', {
+                                        variant: 'error',
+                                        preventDuplicate: true,
+                                    });
+                            }}
                             margin='normal'
                             required
                             fullWidth
@@ -123,7 +133,6 @@ export default function Auth({
                             name='password'
                             type='password'
                             id='password'
-                            placeholder='Enter password'
                             autoComplete='current-password'
                             color='primary'
                             value={CPV}
@@ -131,7 +140,9 @@ export default function Auth({
                                 style: { fontSize: CPV ? '23px' : '16px' },
                             }}
                             onChange={(e) => {
-                                !isAuthenticated && setCPV(e.target.value);
+                                !isAuthenticated
+                                    ? setCPV(e.target.value)
+                                    : setCPV('');
                             }}
                             InputProps={{
                                 startAdornment: (

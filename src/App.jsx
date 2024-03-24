@@ -1,69 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import {
-    BrowserRouter,
-    Route,
-    Router,
-    RouterProvider,
-    Routes,
-    createBrowserRouter,
-    useNavigate,
-} from 'react-router-dom';
-import Auth from './Auth';
+import React from 'react';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import Auth from './Auth.jsx';
 
-// Local files: React Components
-import {
-    Alert,
-    AppBar,
-    Avatar,
-    Snackbar,
-    Toolbar,
-    Typography,
-} from '@mui/material';
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { AppBar, Avatar, Toolbar, styled } from '@mui/material';
 import { motion } from 'framer-motion';
 import Dashboard from './Dashboard.jsx';
 
-export default function App() {
-    const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
-    const [redirectSnackbarOpen, setRedirectSnackbarOpen] = useState(false);
+import { MaterialDesignContent, SnackbarProvider } from 'notistack';
+import { isMobile } from 'react-device-detect';
 
-    useEffect(() => {
-        console.log('pasda');
-    }, []);
+export default function App() {
+    const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
+        '&.notistack-MuiContent-success': {
+            backgroundColor: 'rgba(56, 142, 60, 0.28)',
+            padding: '8px 40px 8px 18px',
+            borderRadius: '10px',
+            borderStyle: 'solid',
+            borderColor: 'rgba(56, 142, 60, 0.1)',
+            boxShadow: '0px 0px 25px rgba(56, 142, 60, 0.25)',
+
+            fontFamily: 'Nunito',
+            fontSize: '16.8px',
+            fontWeight: '600',
+            color: '#1b5e20',
+        },
+        '&.notistack-MuiContent-info': {
+            backgroundColor: 'rgba(2, 136, 209, 0.25)',
+            padding: '8px 0px 8px 18px',
+            borderRadius: '10px',
+            borderStyle: 'solid',
+            borderColor: 'rgba(2, 136, 209, 0.1)',
+            boxShadow: '0px 0px 25px rgba(2, 136, 209, 0.25)',
+
+            fontFamily: 'Nunito',
+            fontSize: '16.8px',
+            fontWeight: '600',
+            color: '#01579b',
+        },
+        '&.notistack-MuiContent-error': {
+            backgroundColor: 'rgb(211, 47, 47, 0.25)',
+            padding: '8px 0px 8px 18px',
+            borderRadius: '10px',
+            borderStyle: 'solid',
+            borderColor: 'rgb(211, 47, 47, 0.1)',
+            boxShadow: '0px 0px 25px rgb(211, 47, 47, 0.25)',
+
+            fontFamily: 'Nunito',
+            fontSize: '16.8px',
+            fontWeight: '600',
+            color: 'rgb(211, 47, 47)',
+        },
+    }));
+
     return (
         <>
-            {' '}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
             >
-                <SuccessSnackbar
-                    successSnackbarOpen={successSnackbarOpen}
-                    setSuccessSnackbarOpen={setSuccessSnackbarOpen}
-                />
-                <RedirectSnackbar
-                    redirectSnackbarOpen={redirectSnackbarOpen}
-                    setRedirectSnackbarOpen={setRedirectSnackbarOpen}
-                />
-                <BrowserRouter>
-                    <NavBar />
-                    <Routes>
-                        <Route
-                            path='/'
-                            element={
-                                <Auth
-                                    setSuccessSnackbarOpen={
-                                        setSuccessSnackbarOpen
-                                    }
-                                    setRedirectSnackbarOpen={
-                                        setRedirectSnackbarOpen
-                                    }
-                                />
-                            }
-                        />
-                        <Route path='/dashboard' element={<Dashboard />} />
-                    </Routes>
-                </BrowserRouter>
+                <SnackbarProvider
+                    transitionDuration={{ enter: 200, exit: 200 }}
+                    autoHideDuration={3000}
+                    anchorOrigin={{
+                        vertical: isMobile ? 'bottom' : 'top',
+                        horizontal: isMobile ? 'center' : 'right',
+                    }}
+                    maxSnack={3}
+                    Components={{
+                        success: StyledMaterialDesignContent,
+                        info: StyledMaterialDesignContent,
+                        error: StyledMaterialDesignContent,
+                    }}
+                    iconVariant={{
+                        success: (
+                            <CheckCircleOutlineRoundedIcon
+                                sx={{ mr: '10px', color: '#388e3c' }}
+                            />
+                        ),
+                        info: (
+                            <InfoOutlinedIcon
+                                sx={{ mr: '10px', color: '#0288d1' }}
+                            />
+                        ),
+                        error: (
+                            <ErrorOutlineOutlinedIcon
+                                sx={{ mr: '10px', color: 'rgba(211, 47, 47)' }}
+                            />
+                        ),
+                    }}
+                >
+                    <BrowserRouter>
+                        <NavBar />
+                        <Routes>
+                            <Route path='/' element={<Auth />} />
+                            <Route path='/dashboard' element={<Dashboard />} />
+                        </Routes>
+                    </BrowserRouter>
+                </SnackbarProvider>
             </motion.div>{' '}
         </>
     );
@@ -81,7 +118,6 @@ function NavBar() {
                     <div
                         style={{ cursor: 'pointer' }}
                         onClick={() => {
-                            console.log('asda');
                             navigate('/');
                         }}
                     >
@@ -132,90 +168,6 @@ function NavBar() {
                     </Grid> */}
                 </Toolbar>
             </AppBar>
-        </>
-    );
-}
-
-function SuccessSnackbar({ successSnackbarOpen, setSuccessSnackbarOpen }) {
-    return (
-        <>
-            {' '}
-            <Snackbar
-                open={successSnackbarOpen}
-                onClose={() => {
-                    setSuccessSnackbarOpen(false);
-                }}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                autoHideDuration={4000}
-            >
-                <Alert
-                    severity='success'
-                    sx={{
-                        backgroundColor: 'rgba(56, 142, 60, 0.25)',
-                        padding: '5px 80px 5px 18px',
-                        borderRadius: '10px',
-                        borderStyle: 'solid',
-                        borderColor: 'rgba(56, 142, 60, 0.1)',
-                        boxShadow: '0px 0px 25px rgba(56, 142, 60, 0.25)',
-                    }}
-                >
-                    <Typography
-                        sx={{
-                            fontFamily: 'Inter',
-                            fontWeight: '500',
-                            color: '#388e3c',
-                            mt: -0.2,
-                        }}
-                    >
-                        Login Successful
-                    </Typography>
-                </Alert>
-            </Snackbar>
-        </>
-    );
-}
-
-function RedirectSnackbar({ redirectSnackbarOpen, setRedirectSnackbarOpen }) {
-    return (
-        <>
-            <Snackbar
-                open={redirectSnackbarOpen}
-                onClose={() => {
-                    setRedirectSnackbarOpen(false);
-                }}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                sx={{ mt: '70px' }}
-                autoHideDuration={4000}
-            >
-                <Alert
-                    severity='info'
-                    sx={{
-                        backgroundColor: 'rgba(2, 136, 209, 0.25)',
-                        padding: '5px 50px 5px 18px',
-                        borderRadius: '10px',
-                        borderStyle: 'solid',
-                        borderColor: 'rgba(2, 136, 209, 0.1)',
-                        boxShadow: '0px 0px 25px rgba(2, 136, 209, 0.25)',
-                    }}
-                >
-                    <Typography
-                        sx={{
-                            fontFamily: 'Inter',
-                            fontWeight: '500',
-                            color: '#0288d1',
-                            mt: -0.2,
-                        }}
-                    >
-                        Redirecting...
-                    </Typography>
-                </Alert>
-            </Snackbar>
         </>
     );
 }
