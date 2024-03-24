@@ -127,7 +127,7 @@ function NavBar() {
                                 width: '50px',
                                 height: '50px',
                             }}
-                            src='/logo.png'
+                            src='/logo/logo.png'
                         />
                     </div>
                     {/* <Grid container sx={{ justifyContent: 'center' }}>
