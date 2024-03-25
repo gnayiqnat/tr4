@@ -63,7 +63,9 @@ export default function Auth() {
         }
     }
     useEffect(() => {
-        signInRequest();
+        if (captchaToken) {
+            signInRequest();
+        }
     }, [captchaToken]);
 
     return (
