@@ -60,7 +60,7 @@ export default function Auth() {
     function handleSubmit() {
         if (orgEmail === CEV && orgPassword === CPV) {
             signInRequest();
-        } else if (numberOfFailedTries >= 5) {
+        } else if (numberOfFailedTries === 5) {
             setUserIsSuspicious(true);
         } else {
             setNumberOfFailedTries((numberOfFailedTries + 1));
