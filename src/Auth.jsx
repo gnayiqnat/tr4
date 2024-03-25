@@ -59,12 +59,12 @@ export default function Auth() {
 
     function handleSubmit() {
         if (orgEmail === CEV && orgPassword === CPV) {
-            setStep2(true);
+            signInRequest()
         }
     }
     useEffect(() => {
         if (captchaToken) {
-            signInRequest();
+            setStep2(true)
         }
     }, [captchaToken]);
 
@@ -87,6 +87,10 @@ export default function Auth() {
                     }}
                 >
                     {!step2 ? (
+                        <>
+                            <TurnstileStep setCaptchaToken={setCaptchaToken} />
+                        </>
+                    ) : (
                         <>
                             <Typography
                                 align='center'
@@ -241,8 +245,6 @@ export default function Auth() {
                                 </Box>
                             </Box>
                         </>
-                    ) : (
-                        <TurnstileStep setCaptchaToken={setCaptchaToken} />
                     )}
                 </Box>
             </Box>
