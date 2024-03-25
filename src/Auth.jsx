@@ -1,4 +1,4 @@
-import { Turnstile } from '@marsidev/react-turnstile';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
 import { Button, InputAdornment, Typography } from '@mui/material';
@@ -22,18 +22,18 @@ export default function Auth() {
     /* import.meta.env.VITE_APP_PASSWORD; */
     const [scope, animate] = useAnimate();
 
+    const [numberOfFailedTries, setNumberOfFailedTries] = useState(0);
     const [CEV, setCEV] = useState('');
     const [CPV, setCPV] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [captchaToken, setCaptchaToken] = useState();
-    const [step2, setStep2] = useState(false);
+    const [userIsSuspicious, setUserIsSuspicious] = useState(false);
 
     async function signInRequest() {
         supabase.auth
             .signInWithPassword({
                 email: `${preOrgEmail + CEV}@gmail.com`,
                 password: CPV,
-                options: { captchaToken },
             })
             .then((response) => {
                 response.error
@@ -59,12 +59,18 @@ export default function Auth() {
 
     function handleSubmit() {
         if (orgEmail === CEV && orgPassword === CPV) {
-            signInRequest()
+            signInRequest();
+        } else if (numberOfFailedTries >= 5) {
+            setUserIsSuspicious(true);
+        } else {
+            setNumberOfFailedTries((numberOfFailedTries + 1));
         }
     }
     useEffect(() => {
-        if (captchaToken) {
-            setStep2(true)
+        if (userIsSuspicious && captchaToken) {
+            setUserIsSuspicious(false);
+            setNumberOfFailedTries(0)
+            setCaptchaToken('');
         }
     }, [captchaToken]);
 
@@ -86,9 +92,9 @@ export default function Auth() {
                         height: '96dvh',
                     }}
                 >
-                    {!step2 ? (
+                    {userIsSuspicious ? (
                         <>
-                            <TurnstileStep setCaptchaToken={setCaptchaToken} />
+                            <HCaptchaVerify setCaptchaToken={setCaptchaToken} />
                         </>
                     ) : (
                         <>
@@ -252,8 +258,8 @@ export default function Auth() {
     );
 }
 
-function TurnstileStep({ setCaptchaToken }) {
-    const turnstileKey = import.meta.env.VITE_APP_TURNSTILE_KEY;
+function HCaptchaVerify({ setCaptchaToken }) {
+    const HCaptchaKey = import.meta.env.VITE_APP_HCAPTCHA_KEY;
 
     return (
         <>
@@ -264,10 +270,9 @@ function TurnstileStep({ setCaptchaToken }) {
                     mt: 3,
                 }}
             >
-                <Turnstile
-                    options={{ theme: 'light' }}
-                    siteKey={turnstileKey}
-                    onSuccess={(token) => {
+                <HCaptcha
+                    sitekey={HCaptchaKey}
+                    onVerify={(token) => {
                         setCaptchaToken(token);
                     }}
                 />
