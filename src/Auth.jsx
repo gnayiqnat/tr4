@@ -12,8 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 
 export default function Auth() {
-    const numberOfKeysPressed = React.useRef(0);
-
     const navigate = useNavigate();
     const preOrgEmail = import.meta.env.VITE_APP_PREORG_EMAIL;
     const orgEmail = import.meta.env.VITE_APP_ORG_EMAIL;
@@ -61,18 +59,41 @@ export default function Auth() {
         if (orgEmail === CEV && orgPassword === CPV) {
             signInRequest();
         } else if (numberOfFailedTries === 5) {
+            enqueueSnackbar('Please complete the hCaptcha', {
+                variant: 'info',
+                preventDuplicate: true,
+            });
             setUserIsSuspicious(true);
+            localStorage.setItem('failedTries', numberOfFailedTries);
         } else {
-            setNumberOfFailedTries((numberOfFailedTries + 1));
+            enqueueSnackbar('Password is incorrect', {
+                variant: 'error',
+                preventDuplicate: true,
+            });
+            setNumberOfFailedTries(numberOfFailedTries + 1);
+            // localstorage can be easily bypassed by editing in dev console. i will change it to server-based soon
+            localStorage.setItem('failedTries', numberOfFailedTries);
         }
     }
     useEffect(() => {
         if (userIsSuspicious && captchaToken) {
             setUserIsSuspicious(false);
-            setNumberOfFailedTries(0)
+            setNumberOfFailedTries(0);
             setCaptchaToken('');
+
+            localStorage.setItem('failedTries', numberOfFailedTries);
         }
     }, [captchaToken]);
+
+    useEffect(() => {
+        if (localStorage.getItem('failedTries') == 5) {
+            enqueueSnackbar('Please complete the hCaptcha', {
+                variant: 'info',
+                preventDuplicate: true,
+            });
+            setUserIsSuspicious(true);
+        }
+    }, []);
 
     return (
         <motion.div
@@ -121,16 +142,9 @@ export default function Auth() {
                                     onKeyDown={(e) => {
                                         e.key === 'Enter' &&
                                             !isAuthenticated &&
-                                            enqueueSnackbar(
-                                                'Password is incorrect',
-                                                {
-                                                    variant: 'error',
-                                                    preventDuplicate: true,
-                                                }
-                                            );
-                                        e.key !== 'Backspace' &&
-                                            numberOfKeysPressed.current++;
-                                    }}
+                                            handleSubmit()}
+                                            
+                                    }
                                     margin='normal'
                                     required
                                     fullWidth
@@ -167,17 +181,9 @@ export default function Auth() {
                                 />
                                 <TextField
                                     onKeyDown={(e) => {
-                                        e.key === 'Enter' &&
-                                            !isAuthenticated &&
-                                            enqueueSnackbar(
-                                                'Password is incorrect',
-                                                {
-                                                    variant: 'error',
-                                                    preventDuplicate: true,
-                                                }
-                                            );
-                                        e.key !== 'Backspace' &&
-                                            numberOfKeysPressed.current++;
+                                        e.key === 'Enter' && !isAuthenticated
+&&
+                                             handleSubmit();
                                     }}
                                     margin='normal'
                                     required
