@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import {
+    BrowserRouter,
+    Route,
+    Router,
+    Routes,
+    useNavigate,
+} from 'react-router-dom';
 import Auth from './Auth.jsx';
 
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
@@ -65,6 +71,7 @@ export default function App() {
             >
                 <SnackbarProvider
                     transitionDuration={{ enter: 200, exit: 200 }}
+                    disableWindowBlurListener={true}
                     autoHideDuration={3000}
                     anchorOrigin={{
                         vertical: isMobile ? 'bottom' : 'top',
@@ -95,6 +102,7 @@ export default function App() {
                     }}
                 >
                     <BrowserRouter>
+                        {' '}
                         <NavBar />
                         <Routes>
                             <Route path='/' element={<Auth />} />

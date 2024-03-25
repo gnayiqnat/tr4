@@ -87,7 +87,7 @@ function Sec1() {
                                         marginTop: '3px',
                                     }}
                                 >
-                                    RM 93
+                                    RM 95
                                 </Typography>
                             </Grid>
                             {/* <Grid item>
