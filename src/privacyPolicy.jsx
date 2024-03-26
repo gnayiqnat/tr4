@@ -9,8 +9,8 @@ export default function PrivacyPolicy() {
                     <h4 style={{ fontWeight: '400' }}>
                         This Privacy Policy describes how we collect, use, and
                         disclose information when you use our website
-                        [TRAT.space] (https://trat.space) and the services
-                        provided through it. By accessing or using our Site, you
+                        TRAT.space (https://trat.space) and the services
+                        provided through it. By accessing or using our site, you
                         agree to the terms of this Privacy Policy.
                     </h4>
                     <h2>Supabase</h2>
