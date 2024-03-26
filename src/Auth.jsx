@@ -64,7 +64,19 @@ export default function Auth() {
             });
 
         if (isLoggedIn === true) {
-            handleSignInSuccess();
+            enqueueSnackbar("You're now logged in.", {
+                variant: 'success',
+            }),
+                setTimeout(() => {
+                    enqueueSnackbar('Redirecting, please wait.', {
+                        variant: 'info',
+                        preventDuplicate: true,
+                    });
+                }, 1000),
+                animate(scope.current, { opacity: 0 }, { duration: 0 });
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 750);
         }
     }, [isLoggedIn]);
 
