@@ -19,6 +19,8 @@ import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 import { isMobile } from 'react-device-detect';
 import FourOFourPage from './404.jsx';
 import PrivacyPolicy from './privacyPolicy.jsx';
+import SetPassword from './setPassword.jsx';
+import Profile from './profile.jsx';
 
 export default function App() {
     const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
@@ -75,7 +77,7 @@ export default function App() {
                     disableWindowBlurListener={true}
                     autoHideDuration={3000}
                     anchorOrigin={{
-                        vertical: isMobile ? 'bottom' : 'top',
+                        vertical: 'bottom',
                         horizontal: isMobile ? 'center' : 'right',
                     }}
                     maxSnack={3}
@@ -111,9 +113,16 @@ export default function App() {
                                 path='/dashboard'
                                 element={<Dashboard />}
                             />{' '}
-                            <Route path='/privacypolicy' element={<PrivacyPolicy />} />
+                            <Route
+                                path='/privacypolicy'
+                                element={<PrivacyPolicy />}
+                            />
+                            <Route
+                                path='/set-password'
+                                element={<SetPassword />}
+                            />
+                            <Route path='/profile' element={<Profile />} />
                             <Route path='*' element={<FourOFourPage />} />
-
                         </Routes>
                     </BrowserRouter>
                 </SnackbarProvider>
@@ -130,58 +139,33 @@ function NavBar() {
                 elevation={0}
                 sx={{ backgroundColor: 'transparent', mt: 1.75 }}
             >
-                <Toolbar sx={{}}>
-                    <div
+                <Toolbar
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                >
+                    <Avatar
+                        sx={{
+                            borderRadius: 0,
+                            width: '50px',
+                            height: '50px',
+                        }}
                         style={{ cursor: 'pointer' }}
                         onClick={() => {
                             navigate('/');
                         }}
+                        src='/logo/logo.png'
+                    />
+                    {/* <motion.div
+                        initial={{ scale: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                            window.open('/profile');
+                        }}
                     >
                         <Avatar
-                            sx={{
-                                borderRadius: 0,
-                                width: '50px',
-                                height: '50px',
-                            }}
-                            src='/logo/logo.png'
+                            sx={{ mr: 2, backgroundColor: 'primary.main' }}
                         />
-                    </div>
-                    {/* <Grid container sx={{ justifyContent: 'center' }}>
-                        <Grid item>
-                            <Tabs value={tabValue} centered>
-                            <Tab
-                                    sx={{
-                                        textTransform: 'none',
-                                        color: 'primary.main',
-                                        fontFamily: 'Inter',
-                                        fontWeight: '600',
-                                        fontSize: '16px',
-                                    }}
-                                    label='Home'
-                                /><Tab
-                                sx={{
-                                    textTransform: 'none',
-                                    color: 'primary.main',
-                                    opacity: 0.5,
-                                    fontFamily: 'Inter',
-                                    fontWeight: '500',
-                                    fontSize: '16px',
-                                }}
-                                label='Pricing'
-                            /><Tab
-                            sx={{
-                                textTransform: 'none',
-                                color: 'primary.main',
-                                fontFamily: 'Inter',
-                                opacity: 0.5,
-                                fontWeight: '500',
-                                fontSize: '16px',
-                            }}
-                            label='About'
-                        />
-                            </Tabs>
-                        </Grid>
-                    </Grid> */}
+                    </motion.div> */}
                 </Toolbar>
             </AppBar>
         </>

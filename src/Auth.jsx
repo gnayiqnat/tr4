@@ -1,4 +1,3 @@
-import HCaptcha from '@hcaptcha/react-hcaptcha';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
 import { Button, Card, Grid, InputAdornment, Typography } from '@mui/material';
@@ -10,16 +9,25 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
+import { useRef } from 'react';
 
 export default function Auth() {
     const navigate = useNavigate();
-
     const [scope, animate] = useAnimate();
-    const [inputValue, setInputValue] = useState('');
 
+    // User Status
+    const [isLoggedIn, setIsLoggedIn] = useState(null);
+
+    // hCaptcha
+    const hCaptchaSitekey = import.meta.env.VITE_APP_HCAPTCHA_SITEKEY;
+    const captcha = useRef();
+    const [captchaToken, setCaptchaToken] = useState('');
+    const [captchaStep, setCaptchaStep] = useState(false);
+
+    // Current Email & Password Value
     const [CEV, setCEV] = useState('');
-    const [verifyOTPstep, setVerifyOTPstep] = useState(false);
-    const [COTPV, setCOTPV] = useState('');
+    const [CPV, setCPV] = useState('');
 
     function handleSignInSuccess() {
         enqueueSnackbar("You're now logged in.", {
@@ -31,57 +39,73 @@ export default function Auth() {
                     preventDuplicate: true,
                 });
             }, 1000),
-            animate(ref.scope, { opacity: 0 }, { duration: 0.5 });
+            animate(scope.current, { opacity: 0 }, { duration: 0.5 });
         setTimeout(() => {
             navigate('/dashboard');
         }, 2500);
     }
-    async function signInRequest() {
-        enqueueSnackbar('Processing request...', { variant: 'info' });
-        supabase.auth
-            .signInWithOtp({
-                email: CEV,
-                options: { shouldCreateUser: false },
-            })
-            .then((response) => {
-                response.error === null && response.data.user === null
-                    ? (enqueueSnackbar('Please check your inbox', {
-                          variant: 'info',
-                      }),
-                      setVerifyOTPstep(true))
-                    : enqueueSnackbar(response.error.message, {
-                          variant: 'error',
-                          preventDuplicate: true,
-                      });
-            });
-        }
-        useEffect(() => {
-            if (COTPV.length === 6) {
-                supabase.auth
-                    .verifyOtp({
-                        CEV,
-                        token: COTPV,
-                        type: 'email',
-                    })
-                    .then((response) =>
-                        response.error
-                            ? (enqueueSnackbar(response.error.message, {
-                                  variant: 'error',
-                                  preventDuplicate: true,
-                              }),
-                              setCOTPV(''))
-                            : enqueueSnackbar(
-                                  'User authenticated.',
-                                  {
-                                      variant: 'info',
-                                  },
-                                  handleSignInSuccess()
-                              )
-                    );
-            }
-        }, [COTPV]);
-    
 
+    function handleSubmit() {
+        enqueueSnackbar('Processing request...', { variant: 'info' });
+        animate(scope.current, { opacity: 0 }, { duration: 0.5 });
+        setTimeout(() => {
+            setCaptchaStep(true);
+            animate(scope.current, { opacity: 1 }, { duration: 0.5 });
+        }, 750);
+    }
+    useEffect(() => {
+        console.log('asd')
+        supabase.auth
+            .getUser()
+
+            .then((response) => {
+                response.data.user.aud === 'authenticated'
+                    ? setIsLoggedIn(true)
+                    : setIsLoggedIn(false);
+            });
+
+        if (isLoggedIn === true) {
+            handleSignInSuccess();
+        }
+    }, [isLoggedIn]);
+
+    useEffect(() => {
+        if (captchaToken && CEV && CPV) {
+            supabase.auth
+                .signInWithPassword({
+                    email: CEV,
+                    password: CPV,
+                    options: { captchaToken: captchaToken },
+                })
+                .then((response) => {
+                    response.data.user
+                        ? handleSignInSuccess()
+                        : (enqueueSnackbar(response.error.message, {
+                              variant: 'error',
+                          }),
+                          response.error.message ===
+                              'Invalid login credentials' &&
+                              (animate(
+                                  scope.current,
+                                  { opacity: 0 },
+                                  { duration: 0.5 }
+                              ),
+                              setTimeout(() => {
+                                  setCaptchaStep(false);
+                                  setCEV('');
+                                  setCPV('');
+                                  animate(
+                                      scope.current,
+                                      { opacity: 1 },
+                                      { duration: 0.5 }
+                                  );
+                              }, 750)));
+                })
+                .then(() => {
+                    captcha.current && captcha.current.resetCaptcha();
+                });
+        }
+    }, [captchaToken]);
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -101,9 +125,14 @@ export default function Auth() {
                     }}
                 >
                     <>
-                        {verifyOTPstep ? (
+                        {captchaStep ? (
                             <>
-                                <VerifyOTP COTPV={COTPV} setCOTPV={setCOTPV} />
+                                <HCaptcha
+                                    sitekey={hCaptchaSitekey}
+                                    onVerify={(token) => {
+                                        setCaptchaToken(token);
+                                    }}
+                                />
                             </>
                         ) : (
                             <>
@@ -161,7 +190,41 @@ export default function Auth() {
                                             },
                                         }}
                                     />
+                                    <TextField
+                                        margin='normal'
+                                        required
+                                        fullWidth
+                                        variant='standard'
+                                        name='password'
+                                        type='password'
+                                        placeholder='Password'
+                                        color='primary'
+                                        value={CPV}
+                                        inputProps={{
+                                            style: { fontSize: '18px' },
+                                        }}
+                                        onChange={(e) => {
+                                            setCPV(e.target.value);
+                                        }}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment
+                                                    position='start'
+                                                    sx={{ mr: '14px' }}
+                                                >
+                                                    <LockOpenIcon
+                                                        sx={{
+                                                            color: '#000000',
+                                                        }}
+                                                    />
+                                                </InputAdornment>
+                                            ),
 
+                                            sx: {
+                                                padding: '10px 10px',
+                                            },
+                                        }}
+                                    />
                                     <Box
                                         sx={{
                                             mt: 5,
@@ -181,7 +244,7 @@ export default function Auth() {
                                                 },
                                             }}
                                             onClick={() => {
-                                                signInRequest();
+                                                handleSubmit();
                                             }}
                                         >
                                             <Typography
@@ -202,8 +265,8 @@ export default function Auth() {
                             </>
                         )}
                     </>
-                    
-                </Box><Box
+                </Box>
+                <Box
                     sx={{
                         display: 'flex',
                         justifyContent: 'end',
@@ -211,7 +274,15 @@ export default function Auth() {
                         padding: '0px 25px',
                     }}
                 >
-                    <Button onClick={() => {window.open('/privacypolicy')}} sx={{textTransform: 'none', '&:hover': {backgroundColor: 'transparent'}}}>
+                    <Button
+                        onClick={() => {
+                            window.open('/privacypolicy');
+                        }}
+                        sx={{
+                            textTransform: 'none',
+                            '&:hover': { backgroundColor: 'transparent' },
+                        }}
+                    >
                         <Typography
                             sx={{ fontFamily: 'Nunito', color: 'primary.main' }}
                         >
@@ -221,86 +292,5 @@ export default function Auth() {
                 </Box>
             </Box>
         </motion.div>
-    );
-}
-
-function VerifyOTP({ COTPV, setCOTPV }) {
-    return (
-        <Grid container sx={{ justifyContent: 'center' }}>
-            <Grid item>
-                <Grid
-                    container
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    <Box
-                        noValidate
-                        sx={{
-                            width: 'clamp(70vw, 80vw, 400px)',
-                            maxWidth: '400px',
-                        }}
-                    >
-                        <Typography
-                            align='center'
-                            sx={{
-                                fontSize: '1.8rem',
-                                fontFamily: 'Nunito',
-                                fontWeight: '500',
-                                mb: 3,
-                                mt: -2,
-                            }}
-                        >
-                            Please verify your email address
-                        </Typography>
-                        <TextField
-                            onKeyDown={(e) => {
-                                e.key === 'Enter' &&
-                                    COTPV.length !== 6 &&
-                                    enqueueSnackbar('OTP contains 6 numbers', {
-                                        variant: 'error',
-                                    });
-                            }}
-                            margin='normal'
-                            required
-                            fullWidth
-                            variant='standard'
-                            name='email'
-                            type='text'
-                            placeholder='Enter OTP'
-                            color='primary'
-                            value={COTPV}
-                            inputProps={{
-                                style: { fontSize: '18px' },
-                            }}
-                            onChange={(e) => {
-                                setCOTPV(e.target.value);
-                            }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment
-                                        position='start'
-                                        sx={{ mr: '14px' }}
-                                    >
-                                        <LockOpenIcon
-                                            sx={{
-                                                color: '#000000',
-                                            }}
-                                        />
-                                    </InputAdornment>
-                                ),
-
-                                sx: {
-                                    padding: '10px 10px',
-                                },
-                            }}
-                        />
-                    </Box>
-                    
-                </Grid>
-            </Grid>
-        </Grid>
     );
 }
