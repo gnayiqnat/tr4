@@ -18,6 +18,7 @@ import Dashboard from './Dashboard.jsx';
 import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 import { isMobile } from 'react-device-detect';
 import FourOFourPage from './404.jsx';
+import PrivacyPolicy from './privacyPolicy.jsx';
 
 export default function App() {
     const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
@@ -110,7 +111,9 @@ export default function App() {
                                 path='/dashboard'
                                 element={<Dashboard />}
                             />{' '}
+                            <Route path='/privacypolicy' element={<PrivacyPolicy />} />
                             <Route path='*' element={<FourOFourPage />} />
+
                         </Routes>
                     </BrowserRouter>
                 </SnackbarProvider>
