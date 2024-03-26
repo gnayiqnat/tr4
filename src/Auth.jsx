@@ -54,7 +54,6 @@ export default function Auth() {
         }, 750);
     }
     useEffect(() => {
-        console.log('asd')
         supabase.auth
             .getUser()
 
@@ -269,7 +268,7 @@ export default function Auth() {
                 <Box
                     sx={{
                         display: 'flex',
-                        justifyContent: 'end',
+                        justifyContent: 'start',
                         mt: -5,
                         padding: '0px 25px',
                     }}
