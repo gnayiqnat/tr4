@@ -202,6 +202,22 @@ export default function Auth() {
                             </>
                         )}
                     </>
+                    
+                </Box><Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'end',
+                        mt: -5,
+                        padding: '0px 25px',
+                    }}
+                >
+                    <Button onClick={() => {window.open('/privacypolicy')}} sx={{textTransform: 'none', '&:hover': {backgroundColor: 'transparent'}}}>
+                        <Typography
+                            sx={{ fontFamily: 'Nunito', color: 'primary.main' }}
+                        >
+                            <u> Privacy Policy</u>{' '}
+                        </Typography>
+                    </Button>
                 </Box>
             </Box>
         </motion.div>
@@ -282,6 +298,7 @@ function VerifyOTP({ COTPV, setCOTPV }) {
                             }}
                         />
                     </Box>
+                    
                 </Grid>
             </Grid>
         </Grid>
