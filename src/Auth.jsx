@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useRef } from 'react';
+import { isMobile } from 'react-device-detect';
 
 export default function Auth() {
     const navigate = useNavigate();
@@ -46,12 +47,16 @@ export default function Auth() {
     }
 
     function handleSubmit() {
-        enqueueSnackbar('Processing request...', { variant: 'info' });
-        animate(scope.current, { opacity: 0 }, { duration: 0.5 });
-        setTimeout(() => {
-            setCaptchaStep(true);
-            animate(scope.current, { opacity: 1 }, { duration: 0.5 });
-        }, 750);
+        if (CPV && CEV) {
+            enqueueSnackbar('Processing request...', { variant: 'info' });
+            animate(scope.current, { opacity: 0 }, { duration: 0.5 });
+            setTimeout(() => {
+                setCaptchaStep(true);
+                animate(scope.current, { opacity: 1 }, { duration: 0.5 });
+            }, 750);
+        } else {
+            enqueueSnackbar('Fields cannot be empty', { variant: 'error' });
+        }
     }
     useEffect(() => {
         supabase.auth
@@ -243,34 +248,37 @@ export default function Auth() {
                                             justifyContent: 'center',
                                         }}
                                     >
-                                        <Button
-                                            sx={{
-                                                backgroundColor: 'primary.main',
-                                                padding: '15px',
-                                                width: '100%',
-                                                borderRadius: '80px',
-                                                '&:hover': {
+                                        {!isMobile && (
+                                            <Button
+                                                sx={{
                                                     backgroundColor:
                                                         'primary.main',
-                                                },
-                                            }}
-                                            onClick={() => {
-                                                handleSubmit();
-                                            }}
-                                        >
-                                            <Typography
-                                                sx={{
-                                                    opacity: 0.7,
-                                                    fontFamily: 'Nunito',
-                                                    textTransform: 'none',
-                                                    color: 'hsl(216, 18%, 85%)',
-                                                    fontWeight: '600',
-                                                    fontSize: '18px',
+                                                    padding: '15px',
+                                                    width: '100%',
+                                                    borderRadius: '80px',
+                                                    '&:hover': {
+                                                        backgroundColor:
+                                                            'primary.main',
+                                                    },
+                                                }}
+                                                onClick={() => {
+                                                    handleSubmit();
                                                 }}
                                             >
-                                                Submit
-                                            </Typography>
-                                        </Button>{' '}
+                                                <Typography
+                                                    sx={{
+                                                        opacity: 0.7,
+                                                        fontFamily: 'Nunito',
+                                                        textTransform: 'none',
+                                                        color: 'hsl(216, 18%, 85%)',
+                                                        fontWeight: '600',
+                                                        fontSize: '18px',
+                                                    }}
+                                                >
+                                                    Submit
+                                                </Typography>
+                                            </Button>
+                                        )}
                                     </Box>
                                 </Box>
                             </>
