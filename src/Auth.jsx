@@ -11,12 +11,12 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useRef } from 'react';
-import { isMobile } from 'react-device-detect';
+import { useMediaQuery } from 'react-responsive';
 
 export default function Auth() {
     const navigate = useNavigate();
     const [scope, animate] = useAnimate();
-
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
     // User Status
     const [isLoggedIn, setIsLoggedIn] = useState(null);
 
@@ -63,9 +63,7 @@ export default function Auth() {
             .getUser()
 
             .then((response) => {
-                response.data.user.aud === 'authenticated'
-                    ? setIsLoggedIn(true)
-                    : setIsLoggedIn(false);
+                response.data.user ? setIsLoggedIn(true) : setIsLoggedIn(false);
             });
 
         if (isLoggedIn === true) {
@@ -248,67 +246,69 @@ export default function Auth() {
                                             justifyContent: 'center',
                                         }}
                                     >
-                                        {!isMobile && (
-                                            <Button
-                                                sx={{
+                                        <Button
+                                            sx={{
+                                                backgroundColor: 'primary.main',
+                                                padding: '15px',
+                                                width: '100%',
+                                                borderRadius: '80px',
+                                                '&:hover': {
                                                     backgroundColor:
                                                         'primary.main',
-                                                    padding: '15px',
-                                                    width: '100%',
-                                                    borderRadius: '80px',
-                                                    '&:hover': {
-                                                        backgroundColor:
-                                                            'primary.main',
-                                                    },
-                                                }}
-                                                onClick={() => {
-                                                    handleSubmit();
+                                                },
+                                            }}
+                                            onClick={() => {
+                                                handleSubmit();
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{
+                                                    opacity: 0.7,
+                                                    fontFamily: 'Nunito',
+                                                    textTransform: 'none',
+                                                    color: 'hsl(216, 18%, 85%)',
+                                                    fontWeight: '600',
+                                                    fontSize: '18px',
                                                 }}
                                             >
-                                                <Typography
-                                                    sx={{
-                                                        opacity: 0.7,
-                                                        fontFamily: 'Nunito',
-                                                        textTransform: 'none',
-                                                        color: 'hsl(216, 18%, 85%)',
-                                                        fontWeight: '600',
-                                                        fontSize: '18px',
-                                                    }}
-                                                >
-                                                    Submit
-                                                </Typography>
-                                            </Button>
-                                        )}
+                                                Submit
+                                            </Typography>
+                                        </Button>
                                     </Box>
                                 </Box>
                             </>
                         )}
                     </>
                 </Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'start',
-                        mt: -5,
-                        padding: '0px 25px',
-                    }}
-                >
-                    <Button
-                        onClick={() => {
-                            window.open('/privacypolicy');
-                        }}
+                {!isMobile && (
+                    <Box
                         sx={{
-                            textTransform: 'none',
-                            '&:hover': { backgroundColor: 'transparent' },
+                            display: 'flex',
+                            justifyContent: 'start',
+                            mt: -5,
+                            padding: '0px 25px',
                         }}
                     >
-                        <Typography
-                            sx={{ fontFamily: 'Nunito', color: 'primary.main' }}
+                        <Button
+                            onClick={() => {
+                                window.open('/privacypolicy');
+                            }}
+                            sx={{
+                                textTransform: 'none',
+                                '&:hover': { backgroundColor: 'transparent' },
+                            }}
                         >
-                            <u> Privacy Policy</u>{' '}
-                        </Typography>
-                    </Button>
-                </Box>
+                            <Typography
+                                sx={{
+                                    fontFamily: 'Nunito',
+                                    color: 'primary.main',
+                                }}
+                            >
+                                <u> Privacy Policy</u>{' '}
+                            </Typography>
+                        </Button>
+                    </Box>
+                )}
             </Box>
         </motion.div>
     );

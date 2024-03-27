@@ -13,16 +13,23 @@ function Dashboard() {
     const [isLoggedIn, setIsLoggedIn] = useState('');
 
     useEffect(() => {
-        supabase.auth.getUser().then((response) => {
-            response.data.user.aud === 'authenticated'
-                ? setIsLoggedIn(true)
-                : setIsLoggedIn(false);
-        });
-
-        if (isLoggedIn === false) {
-            enqueueSnackbar('Please log in', { variant: 'error' });
-            navigate('/');
-        }
+        supabase.auth
+            .getUser()
+     
+            .then((response) => {
+                response
+                    ? response.data.user === null &&
+                      (enqueueSnackbar('Please log in', {
+                          variant: 'error',
+                          preventDuplicate: true,
+                      }),
+                      navigate('/'))
+                    : (enqueueSnackbar(
+                          'Server error, please try again later.',
+                          { variant: 'error' }
+                      ),
+                      console.log(response));
+            });
     }, []);
     return (
         <>
@@ -173,67 +180,67 @@ function ClassroomBudgetCard() {
                     >
                         Transaction History
                     </Typography>
-                    
-                        <Card
-                            variant='outlined'
+
+                    <Card
+                        variant='outlined'
+                        sx={{
+                            width: '375px',
+                            padding: '15px 25px',
+                            borderRadius: '15px',
+                        }}
+                    >
+                        <Grid
+                            container
                             sx={{
-                                width: '375px',
-                                padding: '15px 25px',
-                                borderRadius: '15px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                flexDirection: 'row',
                             }}
                         >
-                            <Grid
-                                container
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    flexDirection: 'row',
-                                }}
-                            >
-                                <Grid item>
-                                    <Typography
-                                        sx={{
-                                            fontFamily: 'Nunito',
-                                            opacity: 0.9,
-                                            fontWeight: '500',
-                                            fontSize: '19px',
-                                        }}
-                                    >
-                                        Hole puncher
-                                    </Typography>
-                                    <Typography
-                                        sx={{
-                                            fontFamily: 'Nunito',
-                                            opacity: 0.6,
-                                            fontSize: '14px',
-                                            mt: -0.5,
-                                        }}
-                                    >
-                                        16 Mar, 04:12
-                                    </Typography>
-                                </Grid>
-                                <Grid
-                                    item
+                            <Grid item>
+                                <Typography
                                     sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
+                                        fontFamily: 'Nunito',
+                                        opacity: 0.9,
+                                        fontWeight: '500',
+                                        fontSize: '19px',
                                     }}
                                 >
-                                    <Typography
-                                        sx={{
-                                            fontFamily: 'Nunito',
-                                            opacity: 0.6,
-                                            fontWeight: '600',
-                                            fontSize: '19px',
-                                            mt: -0.5,
-                                            color: '#C10000',
-                                        }}
-                                    >
-                                        - RM 5
-                                    </Typography>
-                                </Grid>
+                                    Hole puncher
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        fontFamily: 'Nunito',
+                                        opacity: 0.6,
+                                        fontSize: '14px',
+                                        mt: -0.5,
+                                    }}
+                                >
+                                    16 Mar, 04:12
+                                </Typography>
                             </Grid>
-                        </Card>
+                            <Grid
+                                item
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontFamily: 'Nunito',
+                                        opacity: 0.6,
+                                        fontWeight: '600',
+                                        fontSize: '19px',
+                                        mt: -0.5,
+                                        color: '#C10000',
+                                    }}
+                                >
+                                    - RM 5
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </Card>
                 </Grid>
             </Grid>
         </Grid>
