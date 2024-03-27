@@ -76,7 +76,7 @@ export default function Auth() {
                 animate(scope.current, { opacity: 0 }, { duration: 0 });
             setTimeout(() => {
                 navigate('/dashboard');
-            }, 750);
+            }, 500);
         }
     }, [isLoggedIn]);
 
