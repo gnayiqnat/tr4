@@ -1,27 +1,42 @@
-import React from 'react';
+import {
+    AccountBalanceWalletRounded,
+    ChatRounded,
+    Person,
+    PersonOutlineRounded,
+} from '@mui/icons-material';
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import {
+    AppBar,
+    Avatar,
+    BottomNavigation,
+    BottomNavigationAction,
+    Paper,
+    Toolbar,
+    styled,
+} from '@mui/material';
+import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import {
     BrowserRouter,
+    NavLink,
     Route,
-    Router,
     Routes,
     useNavigate,
 } from 'react-router-dom';
 import Auth from './Auth.jsx';
-
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
-import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { AppBar, Avatar, Toolbar, styled } from '@mui/material';
-import { motion } from 'framer-motion';
 import Dashboard from './Dashboard.jsx';
 
 import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 import { isMobile } from 'react-device-detect';
+import { useMediaQuery } from 'react-responsive';
 import FourOFourPage from './404.jsx';
 import PrivacyPolicy from './privacyPolicy.jsx';
-import SetPassword from './setPassword.jsx';
 import Profile from './profile.jsx';
-import { useMediaQuery } from 'react-responsive';
+import SetPassword from './setPassword.jsx';
+import Chat from './chat.jsx';
 
 export default function App() {
     const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
@@ -121,7 +136,8 @@ export default function App() {
                             <Route
                                 path='/set-password'
                                 element={<SetPassword />}
-                            />
+                            />{' '}
+                            <Route path='/chat' element={<Chat />} />
                             <Route path='/profile' element={<Profile />} />
                             <Route path='*' element={<FourOFourPage />} />
                         </Routes>
@@ -134,35 +150,119 @@ export default function App() {
 
 function NavBar() {
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
+    const [value, setValue] = useState(0);
     const navigate = useNavigate();
     return (
         <>
-            {!isMobile && (<><AppBar
-                elevation={0}
-                sx={{
-                    backgroundColor: 'white',
-                    paddingTop: 1.75,
-                    position: 'absolute',
-                }}
-            >
-                <Toolbar
-                    sx={{ display: 'flex', justifyContent: 'space-between' }}
-                >
-
-                        <Avatar
+            {isMobile ? (
+                <>
+                    <Paper
+                        sx={{
+                            position: 'fixed',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            marginBottom: 0.5,
+                        }}
+                        elevation={0}
+                    >
+                        <BottomNavigation
+                            showLabels={false}
                             sx={{
-                                borderRadius: 0,
-                                width: '50px',
-                                height: '50px',
+                                padding: '5px 0px',
+                                color: '#C2CAD6',
+                                '& .Mui-selected': {
+                                    color: 'primary.main',
+                                    opacity: 0.9,
+                                },
+
+                                '& .MuiSvgIcon-root': {
+                                    color: 'primary.main',
+                                    opacity: 0.9,
+                                },
                             }}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => {
-                                navigate('/');
+                            value={value}
+                            onChange={(event, newValue) => {
+                                setValue(newValue);
                             }}
-                            src='/logo/logo.png'
-                        />
-                    
-                    {/* <motion.div
+                        >
+                            <BottomNavigationAction
+                                disableRipple
+                                sx={{ color: 'primary.main', opacity: 0.3 }}
+                                label='Home'
+                                component={NavLink}
+                                to='/dashboard'
+                                icon={
+                                    <HomeRoundedIcon
+                                        sx={{ opacity: 0.3, mb: 0.5 }}
+                                    />
+                                }
+                            />
+                            <BottomNavigationAction
+                                disableRipple
+                                sx={{ color: 'primary.main', opacity: 0.3 }}
+                                label='Chat'
+                                component={NavLink}
+                                to='/chat'
+                                icon={
+                                    <ChatRounded
+                                        sx={{ opacity: 0.3, mb: 0.5 }}
+                                    />
+                                }
+                            />
+                            <BottomNavigationAction
+                                disableRipple
+                                sx={{ color: 'primary.main', opacity: 0.3 }}
+                                label='Finance'
+                                component={NavLink}
+                                to='/finance'
+                                icon={
+                                    <AccountBalanceWalletRounded
+                                        sx={{ opacity: 0.3, mb: 0.5 }}
+                                    />
+                                }
+                            />
+                            <BottomNavigationAction
+                                disableRipple
+                                sx={{ color: 'primary.main', opacity: 0.3 }}
+                                label='Profile'
+                                component={NavLink}
+                                to='/profile'
+                                icon={<Person sx={{ opacity: 0.3, mb: 0.5 }} />}
+                            />
+                        </BottomNavigation>
+                    </Paper>
+                </>
+            ) : (
+                <>
+                    <AppBar
+                        elevation={0}
+                        sx={{
+                            backgroundColor: 'white',
+                            paddingTop: 1.75,
+                            position: 'absolute',
+                        }}
+                    >
+                        <Toolbar
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <Avatar
+                                sx={{
+                                    borderRadius: 0,
+                                    width: '50px',
+                                    height: '50px',
+                                }}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => {
+                                    navigate('/');
+                                }}
+                                src='/logo/logo.png'
+                            />
+
+                            {/* <motion.div
                         initial={{ scale: 1 }}
                         whileHover={{ scale: 1.1 }}
                         style={{ cursor: 'pointer' }}
@@ -174,8 +274,10 @@ function NavBar() {
                             sx={{ mr: 2, backgroundColor: 'primary.main' }}
                         />
                     </motion.div> */}
-                </Toolbar>
-            </AppBar> </>)}
+                        </Toolbar>
+                    </AppBar>{' '}
+                </>
+            )}
         </>
     );
 }

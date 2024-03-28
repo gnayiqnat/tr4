@@ -1,61 +1,63 @@
 import { Box, Button, Card, Grid, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
+import { motion, useAnimate } from 'framer-motion';
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
-import { isMobile } from 'react-device-detect';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import { useRef } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import DashboardMobile from './dashboard/mobile';
 
 function Dashboard() {
     const navigate = useNavigate();
+    const isMobile = useMediaQuery({ query: '(max-width: 960px)' });
 
-    const [isLoggedIn, setIsLoggedIn] = useState('');
+    const [scope, animate] = useAnimate();
 
     useEffect(() => {
         supabase.auth
             .getUser()
-     
+
             .then((response) => {
                 response
-                    ? response.data.user === null &&
-                      (enqueueSnackbar('Please log in', {
+                    ? response.data.user === null
+                        ? (enqueueSnackbar('Please log in', {
+                              variant: 'error',
+                              preventDuplicate: true,
+                          }),
+                          navigate('/'))
+                        : animate(
+                              scope.current,
+                              { opacity: 1 },
+                              { duration: 0.5 }
+                          )
+                    : enqueueSnackbar('Server error, please try again later.', {
                           variant: 'error',
-                          preventDuplicate: true,
-                      }),
-                      navigate('/'))
-                    : (enqueueSnackbar(
-                          'Server error, please try again later.',
-                          { variant: 'error' }
-                      ),
-                      console.log(response));
+                      });
             });
     }, []);
     return (
         <>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
+            <Box
+                ref={scope}
+                transition={{ duration: 0.5 }}
                 style={{
+                    opacity: 0,
                     maxWidth: '1100px',
                     margin: '0 auto',
                 }}
             >
-                <Box
-                    sx={{
-                        mt: 13,
-                        padding: isMobile ? '0px 20px' : '0px 60px',
-                    }}
-                >
-                    <ClassroomBudgetCard />
-                </Box>
-            </motion.div>
+                    <Box>
+                    <DashboardMobile />
+                    
+                    </Box>
+                    
+            </Box>
         </>
     );
 }
 
-function ClassroomBudgetCard() {
+function ClassroomBudgetCard({ isMobile }) {
     const [dataFetched, setDataFetched] = useState(false);
     const totalAmountOfMoney = useRef(0);
     const id = useRef([]);
@@ -79,7 +81,7 @@ function ClassroomBudgetCard() {
 
     return (
         <Grid container sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography
+            {/* <Typography
                 sx={{
                     fontFamily: 'Nunito',
                     fontWeight: '500',
@@ -88,24 +90,28 @@ function ClassroomBudgetCard() {
                 }}
             >
                 Overview
-            </Typography>
+            </Typography> */}
             <Grid
                 container
                 sx={{
                     mt: 2,
-                    display: 'flex',
-                    flexDirection: 'row',
+                    display: 'grid',
+                    gridTemplateColumns: !isMobile && '2fr 3fr',
 
-                    gap: '0px 70px',
+                    gap: '50px 30px',
                 }}
             >
                 <Grid item>
                     <Card
                         sx={{
-                            padding: '30px 20px 20px 35px',
-                            width: 'fit-content',
+                            padding: '30px 0px 20px 35px',
                             backgroundColor: 'primary.main',
                             borderRadius: '22px',
+                            maxWidth: '500px',
+                            margin: isMobile && '0 auto',
+
+                            display: isMobile && 'flex',
+                            justifyContent: isMobile && 'left',
                         }}
                     >
                         {' '}
@@ -141,7 +147,14 @@ function ClassroomBudgetCard() {
                                     RM {totalAmountOfMoney.current}
                                 </Typography>
                             </Grid>
-                            <Grid item>
+                            <Grid
+                                item
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'right',
+                                    mt: 7,
+                                }}
+                            >
                                 <Button
                                     sx={{
                                         backgroundColor:
@@ -149,8 +162,7 @@ function ClassroomBudgetCard() {
                                         color: '#333D4D',
                                         padding: '9px 20px',
                                         borderRadius: '50px',
-                                        mt: 7,
-                                        ml: 27,
+                                        marginRight: 3,
                                     }}
                                 >
                                     <Typography
@@ -168,6 +180,48 @@ function ClassroomBudgetCard() {
                     </Card>{' '}
                 </Grid>
                 <Grid item>
+                    <Card
+                        sx={{
+                            maxWidth: '540px',
+                            backgroundColor: '#A5B0C0',
+
+                            padding: '28px 0px',
+                            borderRadius: '20px',
+                            margin: isMobile && '0 auto',
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                fontFamily: 'Nunito',
+                                fontWeight: '600',
+                                fontSize: '1.3rem',
+                                ml: 3,
+                            }}
+                        >
+                            Chat
+                        </Typography>
+                    </Card>
+                </Grid>
+                {/* <Grid
+                    item
+                    sx={{
+                        display: 'flex',
+                        justifyContent: isMobile && 'center',
+                        width: isMobile && '95%',
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontFamily: 'Nunito',
+                            fontWeight: '500',
+                            fontSize: '23px',
+                            mt: 2,
+                        }}
+                    >
+                        Announcements
+                    </Typography>
+                </Grid> */}
+                {/*  <Grid item>
                     <Typography
                         align='center'
                         sx={{
@@ -241,7 +295,7 @@ function ClassroomBudgetCard() {
                             </Grid>
                         </Grid>
                     </Card>
-                </Grid>
+                </Grid> */}
             </Grid>
         </Grid>
     );
