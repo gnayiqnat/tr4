@@ -59,28 +59,24 @@ export default function Auth() {
         }
     }
 
-    useEffect(() => {supabase.auth
-        .getSession()
-
-        .then((response) => {
-            response.data.session ? setIsLoggedIn(true) : setIsLoggedIn(false);
-        });})
     useEffect(() => {
+        supabase.auth
+            .getSession()
 
+            .then((response) => {
+                response.data.session
+                    ? setIsLoggedIn(true)
+                    : setIsLoggedIn(false);
+            });
+    });
+    useEffect(() => {
         if (isLoggedIn === true) {
-            enqueueSnackbar("You're now logged in.", {
-                variant: 'success',
-            }),
-                setTimeout(() => {
-                    enqueueSnackbar('Redirecting, please wait.', {
-                        variant: 'info',
-                        preventDuplicate: true,
-                    });
-                }, 1000),
-                animate(scope.current, { opacity: 0 }, { duration: 0 });
             setTimeout(() => {
                 navigate('/dashboard');
             }, 500);
+        } else {
+            animate(scope.current, { opacity: 1 }, { duration: 0.5 });
+
         }
     }, [isLoggedIn]);
 
@@ -124,8 +120,7 @@ export default function Auth() {
     return (
         <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.5}}
         >
             <Box ref={scope}>
                 <Box
