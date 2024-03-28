@@ -88,6 +88,7 @@ export default function SetPassword() {
         } else if (passwordValidation === false) {
             enqueueSnackbar('Password does not fit requirements', {
                 variant: 'error',
+                preventDuplicate: true
             });
         }
     }
@@ -150,6 +151,7 @@ export default function SetPassword() {
                                 placeholder='Password'
                                 color='primary'
                                 value={newPassword}
+                                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
                                 inputProps={{
                                     style: { fontSize: '18px' },
                                 }}
