@@ -29,8 +29,8 @@ export default function SetPassword() {
             supabase.auth.getSession().then((response) => {
                 if (response.data.session) {
                     supabase.auth.getUser().then((response) => {
-                        response.data.user.email &&
-                            setUserEmail(response.data.user.email);
+                        response.data.user.email && (
+                            setUserEmail(response.data.user.email), setIsLoggedIn(true))
                     });
                 } else {
                     enqueueSnackbar('Please log in', {variant: 'error', preventDuplicate: true})
@@ -175,10 +175,9 @@ export default function SetPassword() {
                                     },
                                 }}
                             />
-                            <Typography sx={{ mt: 5, fontSize: '1.1rem' }}>
                                 <Grid
                                     container
-                                    sx={{ gap: isMobile ? 0 : 7, mt: -3 }}
+                                    sx={{ gap: isMobile ? '0px 20px' : 7, mt: 2 }}
                                 >
                                     <Grid item>
                                         {' '}
@@ -297,7 +296,6 @@ export default function SetPassword() {
                                         </Typography>
                                     </Grid>
                                 </Grid>
-                            </Typography>
                             <SubmitButton handleSubmit={handleSubmit} />
                         </Box>
                     </Box>
