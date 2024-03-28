@@ -21,12 +21,13 @@ import FourOFourPage from './404.jsx';
 import PrivacyPolicy from './privacyPolicy.jsx';
 import SetPassword from './setPassword.jsx';
 import Profile from './profile.jsx';
+import { useMediaQuery } from 'react-responsive';
 
 export default function App() {
     const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
         '&.notistack-MuiContent-success': {
             backgroundColor: 'rgba(56, 142, 60, 0.28)',
-            padding: '8px 40px 8px 18px',
+            padding: '8px 18px 8px 18px',
             borderRadius: '10px',
             borderStyle: 'solid',
             borderColor: 'rgba(56, 142, 60, 0.1)',
@@ -39,7 +40,7 @@ export default function App() {
         },
         '&.notistack-MuiContent-info': {
             backgroundColor: 'rgba(2, 136, 209, 0.25)',
-            padding: '8px 0px 8px 18px',
+            padding: '8px 18px 8px 18px',
             borderRadius: '10px',
             borderStyle: 'solid',
             borderColor: 'rgba(2, 136, 209, 0.1)',
@@ -52,7 +53,7 @@ export default function App() {
         },
         '&.notistack-MuiContent-error': {
             backgroundColor: 'rgb(211, 47, 47, 0.25)',
-            padding: '8px 0px 8px 18px',
+            padding: '8px 18px 8px 18px',
             borderRadius: '10px',
             borderStyle: 'solid',
             borderColor: 'rgb(211, 47, 47, 0.1)',
@@ -132,28 +133,35 @@ export default function App() {
 }
 
 function NavBar() {
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
     const navigate = useNavigate();
     return (
         <>
-            <AppBar
+            {!isMobile && (<><AppBar
                 elevation={0}
-                sx={{ backgroundColor: 'transparent', mt: 1.75 }}
+                sx={{
+                    backgroundColor: 'white',
+                    paddingTop: 1.75,
+                    position: 'absolute',
+                }}
             >
                 <Toolbar
                     sx={{ display: 'flex', justifyContent: 'space-between' }}
                 >
-                    <Avatar
-                        sx={{
-                            borderRadius: 0,
-                            width: '50px',
-                            height: '50px',
-                        }}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => {
-                            navigate('/');
-                        }}
-                        src='/logo/logo.png'
-                    />
+
+                        <Avatar
+                            sx={{
+                                borderRadius: 0,
+                                width: '50px',
+                                height: '50px',
+                            }}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                                navigate('/');
+                            }}
+                            src='/logo/logo.png'
+                        />
+                    
                     {/* <motion.div
                         initial={{ scale: 1 }}
                         whileHover={{ scale: 1.1 }}
@@ -167,7 +175,7 @@ function NavBar() {
                         />
                     </motion.div> */}
                 </Toolbar>
-            </AppBar>
+            </AppBar> </>)}
         </>
     );
 }

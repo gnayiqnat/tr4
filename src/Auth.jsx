@@ -58,13 +58,14 @@ export default function Auth() {
             enqueueSnackbar('Fields cannot be empty', { variant: 'error' });
         }
     }
-    useEffect(() => {
-        supabase.auth
-            .getUser()
 
-            .then((response) => {
-                response.data.user ? setIsLoggedIn(true) : setIsLoggedIn(false);
-            });
+    useEffect(() => {supabase.auth
+        .getSession()
+
+        .then((response) => {
+            response.data.session ? setIsLoggedIn(true) : setIsLoggedIn(false);
+        });})
+    useEffect(() => {
 
         if (isLoggedIn === true) {
             enqueueSnackbar("You're now logged in.", {
@@ -170,6 +171,9 @@ export default function Auth() {
                                     }}
                                 >
                                     <TextField
+                                        onKeyDown={(e) => {
+                                            e.key === 'Enter' && handleSubmit();
+                                        }}
                                         margin='normal'
                                         required
                                         fullWidth
@@ -205,6 +209,9 @@ export default function Auth() {
                                         }}
                                     />
                                     <TextField
+                                        onKeyDown={(e) => {
+                                            e.key === 'Enter' && handleSubmit();
+                                        }}
                                         margin='normal'
                                         required
                                         fullWidth
