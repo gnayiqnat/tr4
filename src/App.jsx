@@ -2,7 +2,6 @@ import {
     AccountBalanceWalletRounded,
     ChatRounded,
     Person,
-    PersonOutlineRounded,
 } from '@mui/icons-material';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
@@ -18,7 +17,7 @@ import {
     styled,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     BrowserRouter,
     NavLink,
@@ -33,10 +32,10 @@ import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 import { isMobile } from 'react-device-detect';
 import { useMediaQuery } from 'react-responsive';
 import FourOFourPage from './404.jsx';
+import Chat from './chat.jsx';
 import PrivacyPolicy from './privacyPolicy.jsx';
 import Profile from './profile.jsx';
 import SetPassword from './setPassword.jsx';
-import Chat from './chat.jsx';
 
 export default function App() {
     const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
@@ -149,6 +148,15 @@ export default function App() {
 }
 
 function NavBar() {
+    const urlList = ['/', '/chat', '/finance', '/profile'];
+    useEffect(() => {
+        const currentPathname = window.location.pathname;
+        const index = urlList.findIndex((path) => path === currentPathname);
+
+        if (index !== -1) {
+            setValue(index);
+        }
+    }, []);
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
     const [value, setValue] = useState(0);
     const navigate = useNavigate();

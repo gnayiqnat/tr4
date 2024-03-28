@@ -31,7 +31,7 @@ export default function Chat() {
                     }}
                 >
                     <Card >
-                        a
+                        A
                     </Card>
                 </Box>
             </motion.div>
