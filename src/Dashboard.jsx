@@ -40,7 +40,6 @@ function Dashboard() {
         <>
             <Box
                 ref={scope}
-                transition={{ duration: 0.5 }}
                 style={{
                     opacity: 0,
                     maxWidth: '1100px',
