@@ -1,6 +1,6 @@
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
-import { Button, Card, Grid, InputAdornment, Typography } from '@mui/material';
+import { Avatar, Button, Card, Grid, InputAdornment, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import { motion, useAnimate } from 'framer-motion';
@@ -68,7 +68,7 @@ export default function Auth() {
                     ? setIsLoggedIn(true)
                     : setIsLoggedIn(false);
             });
-    });
+    }, []);
     useEffect(() => {
         if (isLoggedIn === true) {
             setTimeout(() => {
@@ -76,7 +76,6 @@ export default function Auth() {
             }, 500);
         } else {
             animate(scope.current, { opacity: 1 }, { duration: 0.5 });
-
         }
     }, [isLoggedIn]);
 
@@ -118,11 +117,8 @@ export default function Auth() {
         }
     }, [captchaToken]);
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            transition={{ duration: 0.5}}
-        >
-            <Box ref={scope}>
+        <>
+            <Box ref={scope} sx={{opacity: 0}}>
                 <Box
                     sx={{
                         display: 'flex',
@@ -145,8 +141,7 @@ export default function Auth() {
                                 />
                             </>
                         ) : (
-                            <>
-                                <Typography
+                            <>     <Typography
                                     align='center'
                                     sx={{
                                         fontSize: '1.8rem',
@@ -312,6 +307,6 @@ export default function Auth() {
                     </Box>
                 )}
             </Box>
-        </motion.div>
+        </>
     );
 }
