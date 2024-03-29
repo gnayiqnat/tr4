@@ -7,12 +7,17 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Link, useLocation } from 'react-router-dom';
+
 import {
     AppBar,
     Avatar,
     BottomNavigation,
     BottomNavigationAction,
+    Box,
     Paper,
+    Tab,
+    Tabs,
     Toolbar,
     styled,
 } from '@mui/material';
@@ -148,18 +153,35 @@ export default function App() {
 }
 
 function NavBar() {
-    const urlList = ['/', '/chat', '/finance', '/profile'];
-    useEffect(() => {
-        const currentPathname = window.location.pathname;
-        const index = urlList.findIndex((path) => path === currentPathname);
+    const CustomTabs = styled(Tabs)(({ theme }) => ({
+        backgroundColor: '#ffffff',
+        borderRadius: '40px',
+        padding: '3px 10px',
+        '& .MuiTabs-indicator': {
+            display: 'none',
+            backgroundColor: '#000000', // Hide the underline
+        },
+    }));
 
+    const CustomTab = styled(Tab)(({ theme }) => ({
+        textTransform: 'none', // Remove uppercase transformation
+        fontWeight: theme.typography.fontWeightRegular, // Customize font weight
+    }));
+
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
+
+    const location = useLocation();
+    const [value, setValue] = useState(0);
+
+    useEffect(() => {
+        const urlList = ['/dashboard', '/chat', '/finance', '/profile'];
+        const index = urlList.findIndex((path) => path === location.pathname);
         if (index !== -1) {
             setValue(index);
         }
-    }, []);
-    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
-    const [value, setValue] = useState(0);
-    const navigate = useNavigate();
+        console.log('asd')
+    }, [location.pathname]);
+
     return (
         <>
             {isMobile ? (
@@ -198,7 +220,7 @@ function NavBar() {
                                 disableRipple
                                 sx={{ color: 'primary.main', opacity: 0.3 }}
                                 label='Home'
-                                component={NavLink}
+                                component={Link}
                                 to='/dashboard'
                                 icon={
                                     <HomeRoundedIcon
@@ -210,7 +232,7 @@ function NavBar() {
                                 disableRipple
                                 sx={{ color: 'primary.main', opacity: 0.3 }}
                                 label='Chat'
-                                component={NavLink}
+                                component={Link}
                                 to='/chat'
                                 icon={
                                     <ChatRounded
@@ -222,7 +244,7 @@ function NavBar() {
                                 disableRipple
                                 sx={{ color: 'primary.main', opacity: 0.3 }}
                                 label='Finance'
-                                component={NavLink}
+                                component={Link}
                                 to='/finance'
                                 icon={
                                     <AccountBalanceWalletRounded
@@ -234,7 +256,7 @@ function NavBar() {
                                 disableRipple
                                 sx={{ color: 'primary.main', opacity: 0.3 }}
                                 label='Profile'
-                                component={NavLink}
+                                component={Link}
                                 to='/profile'
                                 icon={<Person sx={{ opacity: 0.3, mb: 0.5 }} />}
                             />
@@ -270,18 +292,62 @@ function NavBar() {
                                 src='/logo/logo.png'
                             />
 
-                            {/* <motion.div
-                        initial={{ scale: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => {
-                            window.open('/profile');
-                        }}
-                    >
-                        <Avatar
-                            sx={{ mr: 2, backgroundColor: 'primary.main' }}
-                        />
-                    </motion.div> */}
+                            <Box>
+                                <CustomTabs
+                                    value={value}
+                                    onChange={(event, newValue) => {
+                                        setValue(newValue);
+                                    }}
+                                    centered
+                                >
+                                    <CustomTab
+                                        disableRipple
+                                        label='Home'
+                                        component={Link}
+                                        to='/dashboard'
+                                        sx={{
+                                            fontSize: '1.1rem',
+                                            textTransform: 'none',
+                                        }}
+                                    />{' '}
+                                    <CustomTab
+                                        disableRipple
+                                        label='Chat'
+                                        component={Link}
+                                        to='/chat'
+                                        sx={{
+                                            fontSize: '1.1rem',
+                                            textTransform: 'none',
+                                        }}
+                                    />{' '}
+                                    <CustomTab
+                                        disableRipple
+                                        label='Finance'
+                                        component={Link}
+                                        to='/finance'
+                                        sx={{
+                                            fontSize: '1.1rem',
+                                            textTransform: 'none',
+                                        }}
+                                    />
+                                </CustomTabs>
+                            </Box>
+                            <motion.div
+                                initial={{ scale: 1 }}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => {
+                                    navigate('/profile');
+                                }}
+                            >
+                                <Avatar
+                                    sx={{
+                                        mr: 2,
+                                        backgroundColor: 'primary.main',
+                                    }}
+                                />
+                            </motion.div>
                         </Toolbar>
                     </AppBar>{' '}
                 </>
