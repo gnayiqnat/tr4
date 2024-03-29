@@ -20,13 +20,9 @@ import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 export default function DashboardMobile() {
-
     return (
         <>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1}}
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <Box
                     sx={{
                         display: 'flex',
@@ -80,6 +76,7 @@ export default function DashboardMobile() {
                                 height: '75px',
                                 width: '80vw',
                                 borderRadius: '10px',
+                                maxWidth: '600px',
                             }}
                         ></Card>
                     </motion.div>
@@ -95,6 +92,7 @@ export default function DashboardMobile() {
                                 height: '75px',
                                 width: '80vw',
                                 borderRadius: '10px',
+                                maxWidth: '600px',
                             }}
                         ></Card>
                     </motion.div>
