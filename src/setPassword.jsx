@@ -77,7 +77,7 @@ export default function SetPassword() {
                               { opacity: 0 },
                               { duration: 0.5 },
                               setTimeout(() => {
-                                  navigate('/dashboard');
+                                  navigate('/set-username');
                               }, 750)
                           ))
                         : (enqueueSnackbar(response.error.message, {
