@@ -11,7 +11,7 @@ import {
     OutlinedInput,
     Typography,
 } from '@mui/material';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { IoIosSend } from 'react-icons/io';
 import { useMediaQuery } from 'react-responsive';
@@ -71,138 +71,204 @@ export default function Root({ chatViewActive, setchatViewActive }) {
         }
     }, []);
 
+    const [thisDudesUsername, setThisDudesUsername] = useState('');
+
+    useEffect(() => {
+        supabase
+            .from('usernames')
+            .select('username')
+            .eq('user_id', userID)
+            .then((r) => {
+                r.data && setThisDudesUsername(r.data[0].username);
+            });
+    }, []);
     return (
-        <Box sx={{ overflow: 'hidden' }}>
-            {chatViewActive ? (
-                <>
-                    <Box
-                        sx={{
-                            width: '100vw',
-                            position: 'fixed',
-                            backgroundColor: '#ffffff',
-                            padding: '5px 0px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            flexDirection: 'row',
-                            gap: '0px 5px',
-                        }}
-                    >
-                        <IconButton
-                            sx={{ backgroundColor: '#ffffff', zIndex: 999 }}
-                            onClick={() => {
-                                setchatViewActive(false);
-                            }}
-                        >
-                            <ArrowBackIosNewRoundedIcon />
-                        </IconButton>
-                        <Avatar>
-                            <GroupRoundedIcon />
-                        </Avatar>
-                        <Typography
+        <AnimatePresence>
+            <Box sx={{ overflow: 'hidden' }}>
+                {chatViewActive ? (
+                    <>
+                        <Box
                             sx={{
-                                fontFamily: 'Nunito',
-                                fontWeight: '500',
-                                fontSize: '1.25rem',
-                                ml: 1,
-                            }}
-                        >
-                            Lorem Ipsum
-                        </Typography>
-                    </Box>
-
-                    <Grid
-                        container
-                        sx={{
-                            height: '96%',
-                            overflow: 'hidden',
-                            display: 'grid',
-                            justifyContent: 'end',
-                            gridTemplateRows: '1fr 75px',
-                            height: '94dvh',
-                            maxWidth: '100vw',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <Grid
-                            item
-                            sx={{
-                                overflowY: 'scroll',
                                 width: '100vw',
-                                padding: '0px 20px',
-                                overflowX: 'hidden',
+                                position: 'fixed',
+                                backgroundColor: '#ffffff',
+                                padding: '5px 0px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                gap: '0px 5px',
                             }}
                         >
-                            <Box sx={{ paddingTop: '60px' }} />
-                            {messagesList.map((e, i) => {
-                                const isConsecutiveMessage =
-                                    i > 0 &&
-                                    messagesList[i - 1].userID === e.userID;
-
-                                if (e.userID == userID) {
-                                    return (
-                                        <Sender
-                                            text={e.text}
-                                            key={i}
-                                            isConsecutive={isConsecutiveMessage}
-                                        />
-                                    );
-                                } else
-                                    return (
-                                        <Receiver
-                                            text={e.text}
-                                            username={e.username}
-                                            key={i}
-                                            isConsecutive={isConsecutiveMessage}
-                                        />
-                                    );
-                            })}
-                            <Box id='scrollToBottom' />
-                        </Grid>
-                        <Grid item>
-                            <Grid
-                                container
-                                sx={{
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                            <IconButton
+                                sx={{ backgroundColor: '#ffffff', zIndex: 999 }}
+                                onClick={() => {
+                                    setchatViewActive(false);
                                 }}
                             >
-                                <ChatBox userID={userID} isMobile={isMobile} />
+                                <ArrowBackIosNewRoundedIcon />
+                            </IconButton>
+                            <Avatar>
+                                <GroupRoundedIcon />
+                            </Avatar>
+                            <Typography
+                                sx={{
+                                    fontFamily: 'Nunito',
+                                    fontWeight: '500',
+                                    fontSize: '1.25rem',
+                                    ml: 1,
+                                }}
+                            >
+                                Lorem Ipsum
+                            </Typography>
+                        </Box>
+
+                        <Grid
+                            container
+                            sx={{
+                                height: '96%',
+                                overflow: 'hidden',
+                                display: 'grid',
+                                justifyContent: 'end',
+                                gridTemplateRows: '1fr 75px',
+                                height: '97dvh',
+                                maxWidth: '100vw',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <Grid
+                                item
+                                sx={{
+                                    overflowY: 'scroll',
+                                    width: '100vw',
+                                    padding: '0px 20px',
+                                    overflowX: 'hidden',
+                                }}
+                            >
+                                <Box sx={{ paddingTop: '60px' }} />
+                                {messagesList.length >= 1 &&
+                                    messagesList.map((e, i) => {
+                                        const isConsecutiveMessage =
+                                            i > 0 &&
+                                            messagesList[i - 1].userID ===
+                                                e.userID;
+
+                                        if (e.userID == userID) {
+                                            return (
+                                                <Sender
+                                                    text={e.text}
+                                                    key={i}
+                                                    isConsecutive={
+                                                        isConsecutiveMessage
+                                                    }
+                                                />
+                                            );
+                                        } else
+                                            return (
+                                                <Receiver
+                                                    text={e.text}
+                                                    username={e.username}
+                                                    key={i}
+                                                    isConsecutive={
+                                                        isConsecutiveMessage
+                                                    }
+                                                />
+                                            );
+                                    })}
+                                <Box id='scrollToBottom' />
+                            </Grid>
+                            <Grid item>
+                                <Grid
+                                    container
+                                    sx={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <ChatBox
+                                        userID={userID}
+                                        isMobile={isMobile}
+                                        thisDudesUsername={thisDudesUsername}
+                                        setThisDudesUsername={
+                                            setThisDudesUsername
+                                        }
+                                    />
+                                </Grid>
                             </Grid>
                         </Grid>
-                    </Grid>
-                </>
-            ) : (
-                <>
-                    <Box
-                        sx={{
-                            paddingTop: '110px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <motion.div
-                            onClick={() => {
-                                setchatViewActive(true);
+                    </>
+                ) : (
+                    <motion.div initial={{ x: 10 }} animate={{ x: 0 }}>
+                        <Box
+                            sx={{
+                                paddingTop: '110px',
+                                display: 'flex',
+                                justifyContent: 'center',
                             }}
-                            initial={{ scale: 1 }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.9 }}
                         >
-                            <Card
-                                variant='outlined'
-                                sx={{
-                                    height: '70px',
-                                    width: '90vw',
-                                    maxWidth: '400px',
-                                    backgroundColor: 'primary.main',
-                                    borderRadius: '10px',
+                            <motion.div
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => {
+                                    setchatViewActive(true);
                                 }}
-                            ></Card>
-                        </motion.div>
-                    </Box>
-                </>
-            )}
-        </Box>
+                                initial={{ scale: 1 }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.9 }}
+                            >
+                                <Card
+                                    variant='outlined'
+                                    sx={{
+                                        height: '70px',
+                                        width: '90vw',
+                                        maxWidth: '350px',
+                                        borderRadius: '10px',
+
+                                        padding: '0px 20px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0px 10px',
+                                    }}
+                                >
+                                    {' '}
+                                    <Avatar
+                                        sx={{ backgroundColor: 'primary.main' }}
+                                    >
+                                        <GroupRoundedIcon />
+                                    </Avatar>
+                                    <Box>
+                                        <Typography
+                                            sx={{
+                                                fontFamily: 'Nunito',
+                                                fontSize: '1.1rem',
+                                                fontWeight: '600',
+                                                mt: 0.5,
+                                                mb: -0.76,
+                                            }}
+                                        >
+                                            Lorem Ipsum
+                                        </Typography>
+                                        <Typography sx={{ opacity: 0.6 }}>
+                                            {messagesList.length >= 1 &&
+                                            messagesList[
+                                                messagesList.length - 1
+                                            ].username === thisDudesUsername
+                                                ? 'You'
+                                                : messagesList[
+                                                      messagesList.length - 1
+                                                  ].username}
+                                            :{' '}
+                                            {messagesList.length >= 1 &&
+                                                messagesList[
+                                                    messagesList.length - 1
+                                                ].text}
+                                        </Typography>
+                                    </Box>
+                                </Card>
+                            </motion.div>
+                        </Box>
+                    </motion.div>
+                )}
+            </Box>
+        </AnimatePresence>
     );
 }
 
@@ -252,7 +318,11 @@ function Receiver({ text, username, isConsecutive }) {
 function Sender({ text, isConsecutive }) {
     return (
         <>
-            <motion.div initial={{ x: 100 }} animate={{ x: 0 }}>
+            <motion.div
+                initial={{ x: 100 }}
+                animate={{ x: 0 }}
+                transition={{ duration: 0.2, type: 'spring' }}
+            >
                 <Grid
                     container
                     sx={{
@@ -304,19 +374,13 @@ function TextBlock({ text, type }) {
     );
 }
 
-function ChatBox({ isMobile, userID }) {
+function ChatBox({
+    isMobile,
+    userID,
+    thisDudesUsername,
+    setThisDudesUsername,
+}) {
     const [chatboxInputValue, setChatboxInputValue] = useState('');
-    const [thisDudesUsername, setThisDudesUsername] = useState('');
-
-    useEffect(() => {
-        supabase
-            .from('usernames')
-            .select('username')
-            .eq('user_id', userID)
-            .then((r) => {
-                setThisDudesUsername(r.data[0].username);
-            });
-    }, []);
 
     async function pushValue() {
         if (chatboxInputValue !== '') {

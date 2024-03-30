@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { isMobile } from 'react-device-detect';
 
 export default function Profile() {
+    
     return (
         <>
             <Box
