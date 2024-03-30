@@ -29,7 +29,9 @@ export default function DashboardMobile() {
                         justifyContent: 'center',
                         alignItems: 'center',
                         flexDirection: 'column',
-                        mt: 14,
+                        mt: '8dvh',
+                        paddingBottom: '70px',
+                        paddingTop: '70px',
                     }}
                 >
                     <Avatar
