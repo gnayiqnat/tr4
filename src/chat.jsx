@@ -1,3 +1,4 @@
+import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import {
     Avatar,
@@ -83,7 +84,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                             display: 'flex',
                             alignItems: 'center',
                             flexDirection: 'row',
-                            gap: '0px 10px',
+                            gap: '0px 5px',
                         }}
                     >
                         <IconButton
@@ -94,7 +95,9 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                         >
                             <ArrowBackIosNewRoundedIcon />
                         </IconButton>
-                        <Avatar />
+                        <Avatar>
+                            <GroupRoundedIcon />
+                        </Avatar>
                         <Typography
                             sx={{
                                 fontFamily: 'Nunito',
@@ -126,18 +129,30 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                                 overflowY: 'scroll',
                                 width: '100vw',
                                 padding: '0px 20px',
+                                overflowX: 'hidden',
                             }}
                         >
                             <Box sx={{ paddingTop: '60px' }} />
                             {messagesList.map((e, i) => {
+                                const isConsecutiveMessage =
+                                    i > 0 &&
+                                    messagesList[i - 1].userID === e.userID;
+
                                 if (e.userID == userID) {
-                                    return <Sender text={e.text} key={i} />;
+                                    return (
+                                        <Sender
+                                            text={e.text}
+                                            key={i}
+                                            isConsecutive={isConsecutiveMessage}
+                                        />
+                                    );
                                 } else
                                     return (
                                         <Receiver
                                             text={e.text}
                                             username={e.username}
                                             key={i}
+                                            isConsecutive={isConsecutiveMessage}
                                         />
                                     );
                             })}
@@ -191,56 +206,72 @@ export default function Root({ chatViewActive, setchatViewActive }) {
     );
 }
 
-function Receiver({ text, username }) {
+function Receiver({ text, username, isConsecutive }) {
     return (
         <>
-            <Grid
-                container
-                sx={{
-                    flexDirection: 'row',
-                    justifyContent: 'start',
-                    gap: '10px',
-                    mt: 2,
-                }}
-            >
-                <Grid item>
-                    <Avatar
-                        sx={{ border: '1px solid primary.main', zIndex: -1 }}
-                    />
+            <motion.div initial={{ x: -100 }} animate={{ x: 0 }}>
+                <Grid
+                    container
+                    sx={{
+                        flexDirection: 'row',
+                        justifyContent: 'start',
+                        gap: '10px',
+                        mt: isConsecutive ? 0.5 : 2,
+                        ml: isConsecutive && 6,
+                    }}
+                >
+                    {!isConsecutive && (
+                        <Grid item>
+                            <Avatar
+                                sx={{
+                                    border: '1px solid primary.main',
+                                    zIndex: -1,
+                                }}
+                            />
+                        </Grid>
+                    )}
+                    <Grid item>
+                        {!isConsecutive && (
+                            <Typography
+                                sx={{
+                                    marginLeft: '0.25rem',
+                                    color: 'contrastColor',
+                                }}
+                            >
+                                {username}
+                            </Typography>
+                        )}
+                        <TextBlock type='receiver' text={text} />
+                    </Grid>
                 </Grid>
-                <Grid item>
-                    <Typography
-                        sx={{ marginLeft: '0.25rem', color: 'contrastColor' }}
-                    >
-                        {username}
-                    </Typography>
-                    <TextBlock type='receiver' text={text} />
-                </Grid>
-            </Grid>
+            </motion.div>
         </>
     );
 }
 
-function Sender({ text }) {
+function Sender({ text, isConsecutive }) {
     return (
         <>
-            <Grid
-                container
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'end',
-                    padding: '5px 20px',
-                    paddingRight: '0px',
-                    flexWrap: 'nowrap',
-                }}
-            >
-                <TextBlock type='sender' text={text} />
-            </Grid>
+            <motion.div initial={{ x: 100 }} animate={{ x: 0 }}>
+                <Grid
+                    container
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'end',
+                        padding: isConsecutive ? '2px 20px' : '5px 20px',
+                        paddingRight: '0px',
+                        flexWrap: 'nowrap',
+                        marginTop: !isConsecutive && '10px',
+                    }}
+                >
+                    <TextBlock type='sender' text={text} />
+                </Grid>
+            </motion.div>
         </>
     );
 }
 
-function TextBlock(props) {
+function TextBlock({ text, type }) {
     return (
         <>
             <Grid item>
@@ -248,8 +279,7 @@ function TextBlock(props) {
                     container
                     sx={{
                         maxWidth: '60vw',
-                        justifyContent:
-                            props.type === 'sender' ? 'end' : 'start',
+                        justifyContent: type === 'sender' ? 'end' : 'start',
                     }}
                 >
                     <Card
@@ -259,16 +289,13 @@ function TextBlock(props) {
                             color: 'white',
                             padding: '10px 20px',
                             borderRadius: '13px',
-                            borderTopRightRadius:
-                                props.type === 'sender' && '0px',
-                            borderTopLeftRadius:
-                                props.type === 'receiver' && '0px',
+                            
                             lineBreak: 'anywhere',
                             borderColor: 'secondary.main',
                             borderWidth: '3px',
                         }}
                     >
-                        <Typography>{props.text}</Typography>
+                        <Typography>{text}</Typography>
                     </Card>
                 </Grid>
             </Grid>
