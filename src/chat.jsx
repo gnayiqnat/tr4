@@ -19,32 +19,32 @@ import { enqueueSnackbar } from 'notistack';
 
 export default function Root({ chatViewActive, setchatViewActive }) {
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
-    const [messages, setMessages] = useState('');
-    const [messagesList, setMessagesList] = useState([])
+    const [messagesList, setMessagesList] = useState(['']);
 
     useEffect(() => {
-        if (messages.length === 0) {
+        if (messagesList == '') {
             supabase
                 .from('chat_messages')
                 .select('*')
+                .order('created_at', { ascending: false }) // Descending order
+                .limit(25)
                 .then((response) => {
-                    !response.error && setMessagesList(response.data);
+                    !response.error && setMessagesList(response.data.reverse());
                 });
         }
 
-        
         const channel = supabase
             .channel('schema-db-changes')
             .on(
                 'postgres_changes',
                 {
-                    event: '*',
+                    event: 'INSERT',
                     schema: 'public',
                     table: 'chat_messages',
                 },
                 (payload) => {
                     payload.errors === null &&
-                    setMessagesList([...messagesList, payload.new]);
+                        setMessagesList((prev) => [...prev, payload.new]);
                 }
             )
             .subscribe();
@@ -56,8 +56,10 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 
     useEffect(() => {
         document.getElementById('scrollToBottom') &&
-            document.getElementById('scrollToBottom').scrollIntoView();
-    }, [messagesList.length]);
+            document
+                .getElementById('scrollToBottom')
+                .scrollIntoView({ behavior: 'smooth' });
+    }, [messagesList]);
 
     const [userID, setUserID] = useState('');
     useEffect(() => {
@@ -81,6 +83,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                             display: 'flex',
                             alignItems: 'center',
                             flexDirection: 'row',
+                            gap: '0px 10px',
                         }}
                     >
                         <IconButton
@@ -92,6 +95,16 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                             <ArrowBackIosNewRoundedIcon />
                         </IconButton>
                         <Avatar />
+                        <Typography
+                            sx={{
+                                fontFamily: 'Nunito',
+                                fontWeight: '500',
+                                fontSize: '1.25rem',
+                                ml: 1,
+                            }}
+                        >
+                            Lorem Ipsum
+                        </Typography>
                     </Box>
 
                     <Grid
@@ -118,8 +131,15 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                             <Box sx={{ paddingTop: '60px' }} />
                             {messagesList.map((e, i) => {
                                 if (e.userID == userID) {
-                                    return <Sender text={e.text} />;
-                                } else return <Receiver text={e.text} />;
+                                    return <Sender text={e.text} key={i} />;
+                                } else
+                                    return (
+                                        <Receiver
+                                            text={e.text}
+                                            username={e.username}
+                                            key={i}
+                                        />
+                                    );
                             })}
                             <Box id='scrollToBottom' />
                         </Grid>
@@ -131,11 +151,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                                     justifyContent: 'center',
                                 }}
                             >
-                                <ChatBox
-                                    isMobile={isMobile}
-                                    setMessages={setMessages}
-                                    messages={messages}
-                                />
+                                <ChatBox userID={userID} isMobile={isMobile} />
                             </Grid>
                         </Grid>
                     </Grid>
@@ -175,9 +191,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
     );
 }
 
-function Receiver(props) {
-    const text = props.text;
-
+function Receiver({ text, username }) {
     return (
         <>
             <Grid
@@ -198,7 +212,7 @@ function Receiver(props) {
                     <Typography
                         sx={{ marginLeft: '0.25rem', color: 'contrastColor' }}
                     >
-                        Sir Lorem
+                        {username}
                     </Typography>
                     <TextBlock type='receiver' text={text} />
                 </Grid>
@@ -207,9 +221,7 @@ function Receiver(props) {
     );
 }
 
-function Sender(props) {
-    const text = props.text;
-
+function Sender({ text }) {
     return (
         <>
             <Grid
@@ -264,21 +276,37 @@ function TextBlock(props) {
     );
 }
 
-function ChatBox(props) {
-    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
+function ChatBox({ isMobile, userID }) {
     const [chatboxInputValue, setChatboxInputValue] = useState('');
+    const [thisDudesUsername, setThisDudesUsername] = useState('');
+
+    useEffect(() => {
+        supabase
+            .from('usernames')
+            .select('username')
+            .eq('user_id', userID)
+            .then((r) => {
+                setThisDudesUsername(r.data[0].username);
+            });
+    }, []);
 
     async function pushValue() {
         if (chatboxInputValue !== '') {
-            const { error } = await supabase
+            supabase
                 .from('chat_messages')
-                .insert({ text: chatboxInputValue });
-            setChatboxInputValue('');
-
-            /*             props.setMessages([...props.messages, inputMessage]);
-             */
+                .insert({
+                    username: thisDudesUsername,
+                    text: chatboxInputValue,
+                })
+                .select()
+                .then(() => {
+                    setChatboxInputValue('');
+                });
         } else {
-            enqueueSnackbar('Please enter something', { variant: 'error', preventDuplicate: true });
+            enqueueSnackbar('Please enter something', {
+                variant: 'error',
+                preventDuplicate: true,
+            });
         }
     }
 
@@ -305,7 +333,7 @@ function ChatBox(props) {
                     position: 'fixed',
                     bottom: -1,
                     justifyContent: 'center',
-                    mb: props.isMobile && 0,
+                    mb: isMobile && 0,
                     gridTemplateColumns: '1fr 60px',
                     gap: '10px',
                 }}
