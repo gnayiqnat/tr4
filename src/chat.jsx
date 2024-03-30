@@ -261,7 +261,8 @@ function Sender({ text, isConsecutive }) {
                         padding: isConsecutive ? '2px 20px' : '5px 20px',
                         paddingRight: '0px',
                         flexWrap: 'nowrap',
-                        marginTop: !isConsecutive && '10px',
+                        marginTop: isConsecutive ? '-2px' : '10px',
+                        paddingBottom: '3px',
                     }}
                 >
                     <TextBlock type='sender' text={text} />
@@ -288,8 +289,8 @@ function TextBlock({ text, type }) {
                             backgroundColor: 'primary.main',
                             color: 'white',
                             padding: '10px 20px',
-                            borderRadius: '13px',
-                            
+                            borderRadius: '8px',
+
                             lineBreak: 'anywhere',
                             borderColor: 'secondary.main',
                             borderWidth: '3px',
