@@ -19,7 +19,8 @@ import { enqueueSnackbar } from 'notistack';
 
 export default function Root({ chatViewActive, setchatViewActive }) {
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState('');
+    const [messagesList, setMessagesList] = useState([])
 
     useEffect(() => {
         if (messages.length === 0) {
@@ -27,10 +28,11 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                 .from('chat_messages')
                 .select('*')
                 .then((response) => {
-                    !response.error && setMessages(response.data);
+                    !response.error && setMessagesList(response.data);
                 });
         }
 
+        
         const channel = supabase
             .channel('schema-db-changes')
             .on(
@@ -42,7 +44,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                 },
                 (payload) => {
                     payload.errors === null &&
-                        setMessages([...messages, payload.new]);
+                    setMessagesList([...messagesList, payload.new]);
                 }
             )
             .subscribe();
@@ -55,7 +57,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
     useEffect(() => {
         document.getElementById('scrollToBottom') &&
             document.getElementById('scrollToBottom').scrollIntoView();
-    }, [messages.length]);
+    }, [messagesList.length]);
 
     const [userID, setUserID] = useState('');
     useEffect(() => {
@@ -65,6 +67,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
             });
         }
     }, []);
+
     return (
         <Box sx={{ overflow: 'hidden' }}>
             {chatViewActive ? (
@@ -113,7 +116,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                             }}
                         >
                             <Box sx={{ paddingTop: '60px' }} />
-                            {messages.map((e, i) => {
+                            {messagesList.map((e, i) => {
                                 if (e.userID == userID) {
                                     return <Sender text={e.text} />;
                                 } else return <Receiver text={e.text} />;
@@ -275,7 +278,7 @@ function ChatBox(props) {
             /*             props.setMessages([...props.messages, inputMessage]);
              */
         } else {
-            enqueueSnackbar('Please enter something', { variant: 'error' });
+            enqueueSnackbar('Please enter something', { variant: 'error', preventDuplicate: true });
         }
     }
 
