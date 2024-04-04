@@ -1,6 +1,13 @@
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
-import { Avatar, Button, Card, Grid, InputAdornment, Typography } from '@mui/material';
+import {
+    Avatar,
+    Button,
+    Card,
+    Grid,
+    InputAdornment,
+    Typography,
+} from '@mui/material';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import { motion, useAnimate } from 'framer-motion';
@@ -13,12 +20,14 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useRef } from 'react';
 import { useMediaQuery } from 'react-responsive';
 
-export default function Auth() {
+export default function Auth({ isLoggedIn, setIsLoggedIn }) {
+    function handleS () {
+        setIsLoggedIn(true)
+    }
     const navigate = useNavigate();
     const [scope, animate] = useAnimate();
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
     // User Status
-    const [isLoggedIn, setIsLoggedIn] = useState(null);
 
     // hCaptcha
     const hCaptchaSitekey = import.meta.env.VITE_APP_HCAPTCHA_SITEKEY;
@@ -65,8 +74,8 @@ export default function Auth() {
 
             .then((response) => {
                 response.data.session
-                    ? setIsLoggedIn(true)
-                    : setIsLoggedIn(false);
+                    && handleS()
+
             });
     }, []);
     useEffect(() => {
@@ -116,9 +125,10 @@ export default function Auth() {
                 });
         }
     }, [captchaToken]);
+
     return (
         <>
-            <Box ref={scope} sx={{opacity: 0}}>
+            <Box ref={scope} sx={{ opacity: 0 }}>
                 <Box
                     sx={{
                         display: 'flex',
@@ -141,7 +151,9 @@ export default function Auth() {
                                 />
                             </>
                         ) : (
-                            <>     <Typography
+                            <>
+                                {' '}
+                                <Typography
                                     align='center'
                                     sx={{
                                         fontSize: '1.8rem',

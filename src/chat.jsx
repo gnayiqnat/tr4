@@ -1,5 +1,5 @@
-import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
+import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import {
     Avatar,
     Box,
@@ -11,15 +11,21 @@ import {
     OutlinedInput,
     Typography,
 } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useAnimate } from 'framer-motion';
+import { enqueueSnackbar } from 'notistack';
+import { useEffect, useState } from 'react';
 import { IoIosSend } from 'react-icons/io';
 import { useMediaQuery } from 'react-responsive';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
-import { enqueueSnackbar } from 'notistack';
 
 export default function Root({ chatViewActive, setchatViewActive }) {
+    const navigate = useNavigate();
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
+
+    const [thisDudesUsername, setThisDudesUsername] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [scope, animate] = useAnimate();
     const [messagesList, setMessagesList] = useState(['']);
 
     useEffect(() => {
@@ -64,209 +70,273 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 
     const [userID, setUserID] = useState('');
     useEffect(() => {
-        if (!userID) {
-            supabase.auth.getUser().then((r) => {
-                setUserID(r.data.user.id);
-            });
+        if (isLoggedIn) {
+            console.log('step 1');
+            const cookiesData = document.cookie;
+            if (cookiesData != '') {
+                console.log('step 2 cookie: ', cookiesData);
+            } else {
+                if (!userID) {
+                    supabase.auth.getUser().then((r) => {
+                        setUserID(r.data.user.id);
+                    });
+                }
+                supabase
+                    .from('usernames')
+                    .select('username')
+                    .eq('user_id', userID)
+                    .then((r) => {
+                        r.data[0].username != ''
+                            ? (document.cookie = `username=${r.data[0].username};`)
+                            : console.error('Username not found for this user');
+                    });
+            }
         }
-    }, []);
-
-    const [thisDudesUsername, setThisDudesUsername] = useState('');
+    }, [isLoggedIn]);
 
     useEffect(() => {
-        supabase
-            .from('usernames')
-            .select('username')
-            .eq('user_id', userID)
-            .then((r) => {
-                r.data && setThisDudesUsername(r.data[0].username);
+        supabase.auth
+            .getSession()
+
+            .then((response) => {
+                response
+                    ? response.data.session === null
+                        ? (enqueueSnackbar('Please log in', {
+                              variant: 'error',
+                              preventDuplicate: true,
+                          }),
+                          navigate('/'))
+                        : (animate(
+                              scope.current,
+                              { opacity: 1 },
+                              { duration: 0.5 }
+                          ),
+                          setIsLoggedIn(true))
+                    : enqueueSnackbar('Server error, please try again later.', {
+                          variant: 'error',
+                      });
             });
     }, []);
+
+    
+
     return (
         <AnimatePresence>
-            <Box sx={{ overflow: 'hidden' }}>
-                {chatViewActive ? (
-                    <>
-                        <Box
-                            sx={{
-                                width: '100vw',
-                                position: 'fixed',
-                                backgroundColor: '#ffffff',
-                                padding: '5px 0px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                flexDirection: 'row',
-                                gap: '0px 5px',
-                            }}
-                        >
-                            <IconButton
-                                sx={{ backgroundColor: '#ffffff', zIndex: 999 }}
-                                onClick={() => {
-                                    setchatViewActive(false);
-                                }}
-                            >
-                                <ArrowBackIosNewRoundedIcon />
-                            </IconButton>
-                            <Avatar>
-                                <GroupRoundedIcon />
-                            </Avatar>
-                            <Typography
+            <Box sx={{ opacity: 0 }} ref={scope}>
+                <Box sx={{ overflow: 'hidden' }}>
+                    {chatViewActive ? (
+                        <>
+                            <Box
                                 sx={{
-                                    fontFamily: 'Nunito',
-                                    fontWeight: '500',
-                                    fontSize: '1.25rem',
-                                    ml: 1,
-                                }}
-                            >
-                                Lorem Ipsum
-                            </Typography>
-                        </Box>
-
-                        <Grid
-                            container
-                            sx={{
-                                height: '96%',
-                                overflow: 'hidden',
-                                display: 'grid',
-                                justifyContent: 'end',
-                                gridTemplateRows: '1fr 75px',
-                                height: '97dvh',
-                                maxWidth: '100vw',
-                                overflow: 'hidden',
-                            }}
-                        >
-                            <Grid
-                                item
-                                sx={{
-                                    overflowY: 'scroll',
                                     width: '100vw',
-                                    padding: '0px 20px',
-                                    overflowX: 'hidden',
+                                    position: 'fixed',
+                                    backgroundColor: '#ffffff',
+                                    padding: '5px 0px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    flexDirection: 'row',
+                                    gap: '0px 5px',
                                 }}
                             >
-                                <Box sx={{ paddingTop: '60px' }} />
-                                {messagesList.length >= 1 &&
-                                    messagesList.map((e, i) => {
-                                        const isConsecutiveMessage =
-                                            i > 0 &&
-                                            messagesList[i - 1].userID ===
-                                                e.userID;
-
-                                        if (e.userID == userID) {
-                                            return (
-                                                <Sender
-                                                    text={e.text}
-                                                    key={i}
-                                                    isConsecutive={
-                                                        isConsecutiveMessage
-                                                    }
-                                                />
-                                            );
-                                        } else
-                                            return (
-                                                <Receiver
-                                                    text={e.text}
-                                                    username={e.username}
-                                                    key={i}
-                                                    isConsecutive={
-                                                        isConsecutiveMessage
-                                                    }
-                                                />
-                                            );
-                                    })}
-                                <Box id='scrollToBottom' />
-                            </Grid>
-                            <Grid item>
-                                <Grid
-                                    container
+                                <IconButton
                                     sx={{
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
+                                        backgroundColor: '#ffffff',
+                                        zIndex: 999,
+                                    }}
+                                    onClick={() => {
+                                        setchatViewActive(false);
                                     }}
                                 >
-                                    <ChatBox
-                                        userID={userID}
-                                        isMobile={isMobile}
-                                        thisDudesUsername={thisDudesUsername}
-                                        setThisDudesUsername={
-                                            setThisDudesUsername
-                                        }
-                                    />
+                                    <ArrowBackIosNewRoundedIcon />
+                                </IconButton>
+                                <Avatar>
+                                    <GroupRoundedIcon />
+                                </Avatar>
+                                <Typography
+                                    sx={{
+                                        fontFamily: 'Nunito',
+                                        fontWeight: '500',
+                                        fontSize: '1.25rem',
+                                        ml: 1,
+                                    }}
+                                >
+                                    Lorem Ipsum
+                                </Typography>
+                            </Box>
+
+                            <Grid
+                                container
+                                sx={{
+                                    height: '96%',
+                                    overflow: 'hidden',
+                                    display: 'grid',
+                                    justifyContent: 'end',
+                                    gridTemplateRows: '1fr 75px',
+                                    height: '97dvh',
+                                    maxWidth: '100vw',
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <Grid
+                                    item
+                                    sx={{
+                                        overflowY: 'scroll',
+                                        width: '100vw',
+                                        padding: '0px 20px',
+                                        overflowX: 'hidden',
+                                    }}
+                                >
+                                    <Box sx={{ paddingTop: '60px' }} />
+                                    {messagesList.length >= 1 &&
+                                        messagesList.map((e, i) => {
+                                            const isConsecutiveMessage =
+                                                i > 0 &&
+                                                messagesList[i - 1].userID ===
+                                                    e.userID;
+
+                                            if (e.userID == userID) {
+                                                return (
+                                                    <Sender
+                                                        text={e.text}
+                                                        key={i}
+                                                        isConsecutive={
+                                                            isConsecutiveMessage
+                                                        }
+                                                    />
+                                                );
+                                            } else
+                                                return (
+                                                    <Receiver
+                                                        text={e.text}
+                                                        username={e.username}
+                                                        key={i}
+                                                        isConsecutive={
+                                                            isConsecutiveMessage
+                                                        }
+                                                    />
+                                                );
+                                        })}
+                                    <Box id='scrollToBottom' />
+                                </Grid>
+                                <Grid item>
+                                    <Grid
+                                        container
+                                        sx={{
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <ChatBox
+                                            userID={userID}
+                                            isMobile={isMobile}
+                                            thisDudesUsername={
+                                                thisDudesUsername
+                                            }
+                                            setThisDudesUsername={
+                                                setThisDudesUsername
+                                            }
+                                        />
+                                    </Grid>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </>
-                ) : (
-                    <motion.div initial={{ x: 10 }} animate={{ x: 0 }}>
-                        <Box
-                            sx={{
-                                paddingTop: '110px',
-                                display: 'flex',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <motion.div
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => {
-                                    setchatViewActive(true);
-                                }}
-                                initial={{ scale: 1 }}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.9 }}
-                            >
-                                <Card
-                                    variant='outlined'
+                        </>
+                    ) : (
+                        <>
+                            <motion.div initial={{ x: 10 }} animate={{ x: 0 }}>
+                                <Box
                                     sx={{
-                                        height: '70px',
-                                        width: '90vw',
-                                        maxWidth: '350px',
-                                        borderRadius: '10px',
-
-                                        padding: '0px 20px',
+                                        paddingTop: '110px',
+                                        width: '100vw',
                                         display: 'flex',
+                                        justifyContent: 'center',
                                         alignItems: 'center',
-                                        gap: '0px 10px',
+                                        flexDirection: 'column',
                                     }}
                                 >
                                     {' '}
-                                    <Avatar
-                                        sx={{ backgroundColor: 'primary.main' }}
+                                    <Typography
+                                        align='left'
+                                        sx={{
+                                            fontFamily: 'Nunito',
+                                            fontSize: '1.3rem',
+                                            color: 'primary.main',
+                                            mb: 3,
+                                        }}
                                     >
-                                        <GroupRoundedIcon />
-                                    </Avatar>
-                                    <Box>
-                                        <Typography
+                                        Chat
+                                    </Typography>
+                                    <motion.div
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => {
+                                            setchatViewActive(true);
+                                        }}
+                                        initial={{ scale: 1 }}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        <Card
+                                            variant='outlined'
                                             sx={{
-                                                fontFamily: 'Nunito',
-                                                fontSize: '1.1rem',
-                                                fontWeight: '600',
-                                                mt: 0.5,
-                                                mb: -0.76,
+                                                height: '70px',
+                                                width: '90vw',
+                                                maxWidth: '350px',
+                                                borderRadius: '10px',
+
+                                                padding: '0px 20px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0px 10px',
                                             }}
                                         >
-                                            Lorem Ipsum
-                                        </Typography>
-                                        <Typography sx={{ opacity: 0.6 }}>
-                                            {messagesList.length >= 1 &&
-                                            messagesList[
-                                                messagesList.length - 1
-                                            ].username === thisDudesUsername
-                                                ? 'You'
-                                                : messagesList[
-                                                      messagesList.length - 1
-                                                  ].username}
-                                            :{' '}
-                                            {messagesList.length >= 1 &&
-                                                messagesList[
-                                                    messagesList.length - 1
-                                                ].text}
-                                        </Typography>
-                                    </Box>
-                                </Card>
+                                            {' '}
+                                            <Avatar
+                                                sx={{
+                                                    backgroundColor:
+                                                        'primary.main',
+                                                }}
+                                            >
+                                                <GroupRoundedIcon />
+                                            </Avatar>
+                                            <Box>
+                                                <Typography
+                                                    sx={{
+                                                        fontFamily: 'Nunito',
+                                                        fontSize: '1.1rem',
+                                                        fontWeight: '600',
+                                                        mt: 0.5,
+                                                        mb: -0.76,
+                                                    }}
+                                                >
+                                                    Lorem Ipsum
+                                                </Typography>
+                                                <Typography
+                                                    sx={{ opacity: 0.6 }}
+                                                >
+                                                    {messagesList.length >= 1 &&
+                                                    messagesList[
+                                                        messagesList.length - 1
+                                                    ].username ===
+                                                        thisDudesUsername
+                                                        ? 'You'
+                                                        : messagesList[
+                                                              messagesList.length -
+                                                                  1
+                                                          ].username}
+                                                    :{' '}
+                                                    {messagesList.length >= 1 &&
+                                                        messagesList[
+                                                            messagesList.length -
+                                                                1
+                                                        ].text}
+                                                </Typography>
+                                            </Box>
+                                        </Card>
+                                    </motion.div>
+                                </Box>
                             </motion.div>
-                        </Box>
-                    </motion.div>
-                )}
+                        </>
+                    )}
+                </Box>
             </Box>
         </AnimatePresence>
     );

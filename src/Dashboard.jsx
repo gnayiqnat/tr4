@@ -16,11 +16,11 @@ function Dashboard() {
 
     useEffect(() => {
         supabase.auth
-            .getUser()
+            .getSession()
 
             .then((response) => {
                 response
-                    ? response.data.user === null
+                    ? response.data.session === null
                         ? (enqueueSnackbar('Please log in', {
                               variant: 'error',
                               preventDuplicate: true,

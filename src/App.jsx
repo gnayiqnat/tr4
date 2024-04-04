@@ -45,6 +45,7 @@ import { supabase } from './supabaseClient.jsx';
 import SetUsername from './setUsername.jsx';
 
 export default function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [chatViewActive, setchatViewActive] = useState(false);
 
     const StyledMaterialDesignContent = styled(MaterialDesignContent)(() => ({
@@ -130,13 +131,21 @@ export default function App() {
                 >
                     <BrowserRouter>
                         {' '}
-                        <NavBar chatViewActive={chatViewActive} />
+                        <NavBar
+                            chatViewActive={chatViewActive}
+                            isLoggedIn={isLoggedIn}
+                        />
                         <Routes>
-                            <Route path='/' element={<Auth />} />
                             <Route
-                                path='/dashboard'
-                                element={<Dashboard />}
-                            />{' '}
+                                path='/'
+                                element={
+                                    <Auth
+                                        isLoggedIn={isLoggedIn}
+                                        setIsLoggedIn={setIsLoggedIn}
+                                    />
+                                }
+                            />
+                            <Route path='/dashboard' element={<Dashboard />} />{' '}
                             <Route
                                 path='/privacypolicy'
                                 element={<PrivacyPolicy />}
@@ -158,7 +167,7 @@ export default function App() {
                                 path='/set-username'
                                 element={<SetUsername />}
                             />
-                            <Route path='/profile' element={<Profile />} />
+                            <Route path='/profile' element={<Profile isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
                             <Route path='*' element={<FourOFourPage />} />
                         </Routes>
                     </BrowserRouter>
@@ -168,20 +177,8 @@ export default function App() {
     );
 }
 
-function NavBar({ chatViewActive }) {
+function NavBar({ isLoggedIn, chatViewActive }) {
     const navigate = useNavigate();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    useEffect(() => {
-        supabase.auth
-            .getSession()
-
-            .then((response) => {
-                response.data.session
-                    ? setIsLoggedIn(true)
-                    : setIsLoggedIn(false);
-            });
-    }, []);
 
     const CustomTabs = styled(Tabs)(({ theme }) => ({
         backgroundColor: '#ffffff',
@@ -204,10 +201,12 @@ function NavBar({ chatViewActive }) {
     const [value, setValue] = useState(0);
 
     useEffect(() => {
-        const urlList = ['/dashboard', '/chat', '/finance', '/profile'];
+        const urlList = ['/dashboard', '/chat', '/finance'];
         const index = urlList.findIndex((path) => path === location.pathname);
-        if (index !== -1) {
+        if (index !== -1 && index !== false) {
             setValue(index);
+        } else{
+            setValue(false)
         }
     }, [location.pathname]);
 

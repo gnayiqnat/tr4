@@ -5,7 +5,9 @@ const supabaseKey = import.meta.env.VITE_APP_SUPABASE_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-
+function compileData () {
+    
+}
 export default function checkIfSignedIn() {
     supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN') {
