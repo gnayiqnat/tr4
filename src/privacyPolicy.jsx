@@ -5,7 +5,7 @@ export default function PrivacyPolicy() {
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 12 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 12, mb: 12 }}>
             <Box sx={{ width: isMobile ? '80vw' : '60vw', maxWidth: '700px' }}>
                 <Typography>
                     <h1>Privacy Policy</h1>
@@ -68,7 +68,7 @@ export default function PrivacyPolicy() {
                     <h2 style={{ marginTop: '50px' }}>Contact Us</h2>
                     If you have any questions or concerns about our Privacy
                     Policy or the use of your information, please contact us at{' '}
-                    <b>gnayiqnat@gmail.com</b>.<h3>Changes to this Policy</h3>
+                    <b>contact@tanqiyang.com</b>.<h3>Changes to this Policy</h3>
                     We reserve the right to update or change this Privacy Policy
                     at any time. Any changes will be effective immediately upon
                     posting the revised Privacy Policy on our site. Your
