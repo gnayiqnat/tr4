@@ -1,14 +1,22 @@
-import { Avatar, Box, Button, IconButton, Typography } from '@mui/material';
+import {
+	Avatar,
+	Box,
+	Button,
+	IconButton,
+	Skeleton,
+	Typography,
+} from '@mui/material';
 import { isMobile } from 'react-device-detect';
 import { supabase } from './supabaseClient';
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogoutRounded } from '@mui/icons-material';
+import { useMediaQuery } from 'react-responsive';
 
 export default function Profile({ isLoggedIn, setIsLoggedIn }) {
 	const navigate = useNavigate();
-
+	const isFlexing = useMediaQuery({ query: '(max-width: 439px)' });
 	function handleLogout() {
 		supabase.auth.signOut().then((r) => {
 			r.error
@@ -131,7 +139,15 @@ export default function Profile({ isLoggedIn, setIsLoggedIn }) {
 								sx={{ fontFamily: 'Nunito', fontSize: '1.1rem', opacity: 0.5 }}
 							>
 								{' '}
-								{thisDudesUsername}
+								{thisDudesUsername ? (
+									thisDudesUsername
+								) : (
+									<Skeleton
+										variant='text'
+										animation='pulse'
+										sx={{ fontSize: '1.1rem' }}
+									/>
+								)}
 							</Typography>
 						</Box>
 						<Box>
@@ -148,7 +164,19 @@ export default function Profile({ isLoggedIn, setIsLoggedIn }) {
 								sx={{ fontFamily: 'Nunito', fontSize: '1rem', opacity: 0.5 }}
 							>
 								{' '}
-								{userID}
+								{userID ? (
+									userID
+								) : (
+									<Skeleton
+										variant='text'
+										animation='pulse'
+										sx={{
+											fontSize: '1rem',
+											width: isFlexing ? '175px' : '350px',
+											height: isFlexing && '48px',
+										}}
+									/>
+								)}
 							</Typography>
 						</Box>
 					</Box>
