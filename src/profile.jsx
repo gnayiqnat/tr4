@@ -7,108 +7,210 @@ import { useNavigate } from 'react-router-dom';
 import { LogoutRounded } from '@mui/icons-material';
 
 export default function Profile({ isLoggedIn, setIsLoggedIn }) {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    function handleLogout() {
-        supabase.auth.signOut().then((r) => {
-            r.error
-                ? console.log(r.error)
-                : supabase.auth
-                      .getSession()
+	function handleLogout() {
+		supabase.auth.signOut().then((r) => {
+			r.error
+				? console.log(r.error)
+				: supabase.auth
+						.getSession()
 
-                      .then((response) => {
-                          response.data.session
-                              ? enqueueSnackbar(
-                                    'Log out failed. Check console for more details.',
-                                    { variant: 'error', preventDuplicate: true }
-                                )
-                              : setIsLoggedIn(false);
-                      });
-        });
-    }
+						.then((response) => {
+							response.data.session
+								? enqueueSnackbar(
+										'Log out failed. Check console for more details.',
+										{ variant: 'error', preventDuplicate: true }
+								  )
+								: setIsLoggedIn(false);
+						});
+		});
+	}
 
-    useEffect(() => {
-        if (!isLoggedIn) {
-            navigate('/');
-        }
-    }, [isLoggedIn]);
+	// Get username
+	const [userID, setUserID] = useState('');
+	const [thisDudesUsername, setThisDudesUsername] = useState('');
+	useEffect(() => {
+		if (isLoggedIn) {
+			if (!userID) {
+				supabase.auth.getUser().then((r) => {
+					if (r.data) {
+						setUserID(r.data.user.id);
 
-    // Get username
-    const [userID, setUserID] = useState('');
-    const [thisDudesUsername, setThisDudesUsername] = useState('');
-    useEffect(() => {
-        if (isLoggedIn) {
-            if (!userID) {
-                supabase.auth.getUser().then((r) => {
-                    setUserID(r.data.user.id);
-                });
-            }
-            supabase
-                .from('usernames')
-                .select('username')
-                .eq('user_id', userID)
-                .then((r) => {
-                    r.data && setThisDudesUsername(r.data[0].username);
-                });
-        }
-    }, [isLoggedIn]);
+						supabase
+							.from('usernames')
+							.select('username')
+							.eq('user_id', r.data.user.id)
+							.then((res) => {
+								res.data && setThisDudesUsername(res.data[0].username);
+							});
+					} else {
+						console.log(r);
+					}
+				});
+			}
+		}
+	}, [isLoggedIn]);
 
-    return (
-        <>
-            <Box
-                sx={{
-                    mt: 13,
-                    padding: isMobile ? '0px 20px' : '0px 90px',
-                    display: 'flex',
-                    justifyContent: 'center',
+	return (
+		<>
+			{/* Design copied from the NextDNS account page */}
+			<Box
+				sx={{
+					mt: 13,
+					mb: 10,
+					padding: isMobile ? '20px 20px' : '0px 90px',
+					display: 'flex',
+					justifyContent: 'center',
 
-                    flexDirection: 'column',
-                }}
-            >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                    }}
-                >
-                    <Typography sx={{ fontFamily: 'Nunito', fontSize: '2rem' }}>
-                        Profile
-                    </Typography>
-                    <Button
-                        sx={{
-                            color: 'primary.main',
-                            textTransform: 'none',
-                            borderStyle: 'solid',
-                            borderColor: 'primary.main',
-                            borderWidth: '1px',
-                            padding: '10px 20px',
-                        }}
-                        onClick={() => {
-                            handleLogout()
-                        }}
-                    >
-                        <Typography
-                            sx={{
-                                mr: 1,
-                                fontFamily: 'Nunito',
-                                fontWeight: '600',
-                                fontSize: '1.1rem',
-                            }}
-                        >
-                            Log out
-                        </Typography>
-                        <LogoutRounded />
-                    </Button>
-                </Box>
+					flexDirection: 'column',
+				}}
+			>
+				{/* 
                 <Avatar
                     align='center'
                     sx={{ margin: 'auto', width: '100px', height: '100px' }}
                 />
-                <Typography sx={{ fontFamily: 'Nunito', fontSize: '1.3rem' }}>
-                    Username: {thisDudesUsername}
-                </Typography>
-            </Box>
-        </>
-    );
+                */}
+				<Box
+					sx={{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+						alignItems: 'center',
+						gap: '20px',
+					}}
+				>
+					<Box
+						sx={{
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							width: '75vw',
+							maxWidth: '700px',
+						}}
+					>
+						<Typography
+							align='center'
+							sx={{ fontFamily: 'Nunito', fontSize: '2rem' }}
+						>
+							Profile
+						</Typography>
+					</Box>
+					<Box
+						sx={{
+							/*
+							borderColor: '#C8C8C8',
+							borderStyle: 'solid',
+							borderWidth: '1px',
+							borderRadius: '5px',
+							*/
+
+							width: '75vw',
+							maxWidth: '700px',
+							padding: '15px',
+
+							display: 'flex',
+							flexDirection: 'row',
+							flexWrap: 'wrap',
+							alignItems: 'center',
+							gap: '10px 50px',
+						}}
+					>
+						<Box>
+							<Typography
+								sx={{
+									fontFamily: 'Nunito',
+									fontSize: '1.3rem',
+									mr: 1,
+								}}
+							>
+								Username:
+							</Typography>
+							<Typography
+								sx={{ fontFamily: 'Nunito', fontSize: '1.1rem', opacity: 0.5 }}
+							>
+								{' '}
+								{thisDudesUsername}
+							</Typography>
+						</Box>
+						<Box>
+							<Typography
+								sx={{
+									fontFamily: 'Nunito',
+									fontSize: '1.3rem',
+									mr: 1,
+								}}
+							>
+								User ID:
+							</Typography>
+							<Typography
+								sx={{ fontFamily: 'Nunito', fontSize: '1rem', opacity: 0.5 }}
+							>
+								{' '}
+								{userID}
+							</Typography>
+						</Box>
+					</Box>
+
+					<Box
+						sx={{
+							borderColor: '#dc3545',
+							borderStyle: 'solid',
+							borderWidth: '1px',
+							borderRadius: '5px',
+
+							width: '75vw',
+							maxWidth: '700px',
+							padding: '25px',
+
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '12px',
+						}}
+					>
+						<Box>
+							<Button
+								sx={{
+									textTransform: 'none',
+
+									padding: '6px 20px',
+
+									backgroundColor: '#dc3545',
+
+									opacity: 0.9,
+								}}
+								onClick={() => {
+									handleLogout();
+								}}
+							>
+								<Typography
+									sx={{
+										color: '#ffffff',
+										fontFamily: 'Nunito',
+										fontWeight: '500',
+										fontSize: '1.1rem',
+									}}
+								>
+									Sign out
+								</Typography>
+							</Button>
+						</Box>
+						<Typography
+							sx={{
+								color: 'primary.main',
+								fontFamily: 'Nunito',
+								fontWeight: '400',
+								opacity: 0.8,
+
+								lineHeight: '1.1',
+							}}
+						>
+							This will only take effect for your current session.
+						</Typography>
+					</Box>
+				</Box>
+			</Box>
+		</>
+	);
 }
