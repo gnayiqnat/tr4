@@ -13,6 +13,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogoutRounded } from '@mui/icons-material';
 import { useMediaQuery } from 'react-responsive';
+import { motion } from 'framer-motion';
+
 
 export default function Profile({ isLoggedIn, setIsLoggedIn }) {
 	const navigate = useNavigate();
@@ -61,7 +63,7 @@ export default function Profile({ isLoggedIn, setIsLoggedIn }) {
 	}, [isLoggedIn]);
 
 	return (
-		<>
+		<motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.5}}>
 			{/* Design copied from the NextDNS account page */}
 			<Box
 				sx={{
@@ -239,6 +241,6 @@ export default function Profile({ isLoggedIn, setIsLoggedIn }) {
 					</Box>
 				</Box>
 			</Box>
-		</>
+		</motion.div>
 	);
 }
