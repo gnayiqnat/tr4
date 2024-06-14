@@ -14,7 +14,7 @@ import {
 import { AnimatePresence, motion, useAnimate } from 'framer-motion';
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
-import { IoIosSend } from 'react-icons/io';
+import { IoSend } from 'react-icons/io5';
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
@@ -151,7 +151,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 								justifyContent: 'end',
 								height: '95lvh',
 								paddingTop: !isMobile && '10px',
-								paddingBottom: isMobile && '100px',
+								paddingBottom: isMobile && '50px',
 								maxWidth: '100vw',
 								overflow: 'hidden',
 							}}
@@ -189,7 +189,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 												/>
 											);
 									})}
-								<Box id='scrollToBottom' />
+								<Box id='scrollToBottom' sx={{height: '70px'}} />
 							</Grid>
 							<Grid item>
 								<Grid
@@ -398,13 +398,11 @@ function ChatBox({
 						pushValue();
 					}}
 					sx={{
-						maxHeight: '50px',
-						padding: '5px 0px',
 						backgroundColor: 'primary.main',
 						borderRadius: '10px',
 					}}
 				>
-					<IoIosSend size={'30px'} color='white' />
+					<IoSend size={'16px'} color='white' />
 				</Button>
 			</Grid>
 		</Box>
