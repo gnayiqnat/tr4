@@ -85,8 +85,7 @@ export default function Profile({ isLoggedIn, setIsLoggedIn }) {
                             padding: '10px 20px',
                         }}
                         onClick={() => {
-                            handleLogout;
-                            enqueueSnackbar('signout btn pressed');
+                            handleLogout()
                         }}
                     >
                         <Typography
