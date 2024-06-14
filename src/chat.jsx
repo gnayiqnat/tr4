@@ -186,6 +186,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 													username={e.username}
 													key={i}
 													isConsecutive={isConsecutiveMessage}
+													isMobile={isMobile}
 												/>
 											);
 									})}
@@ -215,18 +216,18 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 	);
 }
 
-function Receiver({ text, username, isConsecutive }) {
+function Receiver({ text, username, isConsecutive, isMobile }) {
 	return (
 		<>
 			<motion.div initial={{ x: -100 }} animate={{ x: 0 }}>
 				<Grid
 					container
 					sx={{
-						flexDirection: 'row',
+						flexDirection: isMobile ? 'column' : 'row',
 						justifyContent: 'start',
 						gap: '10px',
 						mt: isConsecutive ? 0.5 : 2,
-						ml: isConsecutive && 6,
+						ml: (!isMobile && isConsecutive) && 6,
 					}}
 				>
 					{!isConsecutive && (
