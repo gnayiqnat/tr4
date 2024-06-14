@@ -86,13 +86,13 @@ export default function Profile({ isLoggedIn, setIsLoggedIn }) {
 							display: 'flex',
 							flexDirection: 'row',
 							justifyContent: 'space-between',
-							width: '75vw',
+							width: '80vw',
 							maxWidth: '700px',
 						}}
 					>
 						<Typography
 							align='center'
-							sx={{ fontFamily: 'Nunito', fontSize: '2rem' }}
+							sx={{ fontFamily: 'Nunito', fontSize: '2rem', fontWeight: '500' }}
 						>
 							Profile
 						</Typography>
