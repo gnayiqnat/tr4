@@ -81,22 +81,24 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 		if (userID) {
 			return;
 		} else {
-			supabase.auth.getUser().then((r) => {
-				setUserID(r.data.user.id);
-				return r
-			}).then((r) => {
-				supabase
-					.from('usernames')
-					.select('username')
-					.eq('user_id', r.data.user.id)
-					.then((response) => {
-						console.log(response)
-						response.data[0].username != null
-							? setThisDudesUsername(response.data[0].username)
-							: console.error('Username not found for this user');
-					});
-			})
-
+			supabase.auth
+				.getUser()
+				.then((r) => {
+					setUserID(r.data.user.id);
+					return r;
+				})
+				.then((r) => {
+					supabase
+						.from('usernames')
+						.select('username')
+						.eq('user_id', r.data.user.id)
+						.then((response) => {
+							console.log(response);
+							response.data[0].username != null
+								? setThisDudesUsername(response.data[0].username)
+								: console.error('Username not found for this user');
+						});
+				});
 		}
 	}, []);
 
@@ -363,7 +365,7 @@ function ChatBox({
 
 	async function pushValue() {
 		if (chatboxInputValue !== '') {
-			console.log('f' , thisDudesUsername)
+			console.log('f', thisDudesUsername);
 			supabase
 				.from('chat_messages')
 				.insert({
@@ -429,17 +431,27 @@ function ChatBox({
 						sx={{ padding: '10px 15px', borderRadius: '10px' }}
 					></OutlinedInput>
 				</FormControl>
-				<Button
-					onClick={() => {
-						pushValue();
-					}}
-					sx={{
-						backgroundColor: 'primary.main',
-						borderRadius: '10px',
-					}}
+				<motion.div
+					style={{ height: '100%' }}
+					whileHover={{ scale: 0.9 }}
+					whileTap={{ scale: 0.6 }}
 				>
-					<IoSend size={'16px'} color='white' />
-				</Button>
+					<Button
+						onClick={() => {
+							pushValue();
+						}}
+						sx={{
+							height: '100%',
+							backgroundColor: 'primary.main',
+							borderRadius: '10px',
+							'&:hover': {
+								backgroundColor: 'primary.main',
+							},
+						}}
+					>
+						<IoSend size={'16px'} color='white' />
+					</Button>
+				</motion.div>
 			</Grid>
 		</Box>
 	);
