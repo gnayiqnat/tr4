@@ -273,7 +273,6 @@ function Receiver({ text, username, isConsecutive, isMobile }) {
 						justifyContent: 'start',
 						gap: '10px',
 						mt: isConsecutive ? 0.5 : 2,
-						ml: !isMobile && isConsecutive && 6,
 					}}
 				>
 					<Grid item>
