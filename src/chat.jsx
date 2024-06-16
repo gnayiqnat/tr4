@@ -182,6 +182,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 									}}
 								>
 									<Box sx={{ paddingTop: '60px' }} />
+									<Typography align='center' sx={{mt:1,}}>You have reached the top. Old messages have been deleted to reduce burden on our database.</Typography>
 									{messagesList.length >= 1 &&
 										messagesList.map((e, i) => {
 											const isConsecutiveMessage =
