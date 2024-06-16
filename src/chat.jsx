@@ -83,7 +83,20 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 		} else {
 			supabase.auth.getUser().then((r) => {
 				setUserID(r.data.user.id);
-			});
+				return r
+			}).then((r) => {
+				supabase
+					.from('usernames')
+					.select('username')
+					.eq('user_id', r.data.user.id)
+					.then((response) => {
+						console.log(response)
+						response.data[0].username != null
+							? setThisDudesUsername(response.data[0].username)
+							: console.error('Username not found for this user');
+					});
+			})
+
 		}
 	}, []);
 
@@ -215,10 +228,10 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 				</motion.div>
 			) : (
 				<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 0.5 }}
-						>
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ delay: 0.5 }}
+				>
 					<Box
 						sx={{
 							height: '100lvh',
@@ -265,12 +278,7 @@ function Receiver({ text, username, isConsecutive, isMobile }) {
 				>
 					{!isConsecutive && (
 						<Grid item>
-							<Avatar
-								sx={{
-									border: '1px solid primary.main',
-									zIndex: -1,
-								}}
-							/>
+							<Typography>{username}</Typography>
 						</Grid>
 					)}
 					<Grid item>
@@ -361,6 +369,7 @@ function ChatBox({
 
 	async function pushValue() {
 		if (chatboxInputValue !== '') {
+			console.log('f' , thisDudesUsername)
 			supabase
 				.from('chat_messages')
 				.insert({
