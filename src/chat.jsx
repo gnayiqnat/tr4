@@ -35,7 +35,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 				.from('chat_messages')
 				.select('*')
 				.order('created_at', { ascending: false }) // Descending order
-				.limit(25)
+				.limit(100)
 				.then((response) => {
 					!response.error &&
 						(setMessagesList(response.data.reverse()),
