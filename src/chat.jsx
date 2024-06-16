@@ -5,6 +5,7 @@ import {
 	Box,
 	Button,
 	Card,
+	CircularProgress,
 	FormControl,
 	Grid,
 	IconButton,
@@ -26,7 +27,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 	const [thisDudesUsername, setThisDudesUsername] = useState('');
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [messagesList, setMessagesList] = useState(['']);
-	const [shouldAnimate, setShouldAnimate] = useState(false)
+	const [shouldAnimate, setShouldAnimate] = useState(false);
 
 	useEffect(() => {
 		if (messagesList == '') {
@@ -38,9 +39,10 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 				.then((response) => {
 					!response.error &&
 						(setMessagesList(response.data.reverse()),
+						setShouldAnimate(true),
 						document
 							.getElementById('scrollToBottom')
-							.scrollIntoView({ behavior: 'instant' }), setShouldAnimate(true));
+							.scrollIntoView({ behavior: 'instant' }));
 				});
 		}
 
@@ -106,14 +108,15 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 
 	return (
 		<AnimatePresence>
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ duration: 0.25, delay: 0.4, }}
-			>
-				<Box sx={{ overflow: 'hidden' }}>
-					<>
-						{/* 
+			{shouldAnimate ? (
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ duration: 0.25 }}
+				>
+					<Box sx={{ overflow: 'hidden' }}>
+						<>
+							{/* 
                             <Box
                                 sx={{
                                     width: '100vw',
@@ -142,75 +145,106 @@ export default function Root({ chatViewActive, setchatViewActive }) {
                             </Box>
                             */}
 
-						<Grid
-							container
-							sx={{
-								overflow: 'hidden',
-								display: 'grid',
-								justifyContent: 'end',
-								height: '95lvh',
-								paddingTop: !isMobile && '10px',
-								paddingBottom: isMobile && '50px',
-								maxWidth: '100vw',
-								overflow: 'hidden',
-							}}
-						>
 							<Grid
-								item
+								container
 								sx={{
-									overflowY: 'scroll',
-									width: '100vw',
-									padding: '0px 20px',
-									overflowX: 'hidden',
+									display: 'grid',
+									justifyContent: 'end',
+									height: '95lvh',
+									paddingTop: !isMobile && '10px',
+									paddingBottom: isMobile && '50px',
+									maxWidth: '100vw',
+									overflow: 'hidden',
 								}}
 							>
-								<Box sx={{ paddingTop: '60px' }} />
-								{messagesList.length >= 1 &&
-									messagesList.map((e, i) => {
-										const isConsecutiveMessage =
-											i > 0 && messagesList[i - 1].userID === e.userID;
-
-										if (e.userID == userID) {
-											return (
-												<Sender
-													text={e.text}
-													key={i}
-													isConsecutive={isConsecutiveMessage}
-												/>
-											);
-										} else
-											return (
-												<Receiver
-													text={e.text}
-													username={e.username}
-													key={i}
-													isConsecutive={isConsecutiveMessage}
-													isMobile={isMobile}
-												/>
-											);
-									})}
-								<Box id='scrollToBottom' sx={{ height: '70px' }} />
-							</Grid>
-							<Grid item>
 								<Grid
-									container
+									item
 									sx={{
-										alignItems: 'center',
-										justifyContent: 'center',
+										overflowY: 'scroll',
+										width: '100vw',
+										padding: '0px 20px',
+										overflowX: 'hidden',
 									}}
 								>
-									<ChatBox
-										userID={userID}
-										isMobile={isMobile}
-										thisDudesUsername={thisDudesUsername}
-										setThisDudesUsername={setThisDudesUsername}
-									/>
+									<Box sx={{ paddingTop: '60px' }} />
+									{messagesList.length >= 1 &&
+										messagesList.map((e, i) => {
+											const isConsecutiveMessage =
+												i > 0 && messagesList[i - 1].userID === e.userID;
+
+											if (e.userID == userID) {
+												return (
+													<Sender
+														text={e.text}
+														key={i}
+														isConsecutive={isConsecutiveMessage}
+													/>
+												);
+											} else
+												return (
+													<Receiver
+														text={e.text}
+														username={e.username}
+														key={i}
+														isConsecutive={isConsecutiveMessage}
+														isMobile={isMobile}
+													/>
+												);
+										})}
+									<Box id='scrollToBottom' sx={{ height: '70px' }} />
+								</Grid>
+								<Grid item>
+									<Grid
+										container
+										sx={{
+											alignItems: 'center',
+											justifyContent: 'center',
+										}}
+									>
+										<ChatBox
+											userID={userID}
+											isMobile={isMobile}
+											thisDudesUsername={thisDudesUsername}
+											setThisDudesUsername={setThisDudesUsername}
+										/>
+									</Grid>
 								</Grid>
 							</Grid>
-						</Grid>
-					</>
-				</Box>
-			</motion.div>
+						</>
+					</Box>
+				</motion.div>
+			) : (
+				<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							transition={{ delay: 0.5 }}
+						>
+					<Box
+						sx={{
+							height: '100lvh',
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'center',
+							alignItems: 'center',
+							gap: '25px',
+						}}
+					>
+						<CircularProgress />
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							transition={{ delay: 5 }}
+						>
+							<a style={{ color: '#232932' }} href='/chat'>
+								{' '}
+								<Typography align='center' sx={{ maxWidth: '70vw' }}>
+									Something seems to have went wrong. Reload page?
+								</Typography>
+							</a>{' '}
+						</motion.div>
+					</Box>
+				</motion.div>
+			)}
 		</AnimatePresence>
 	);
 }
@@ -364,7 +398,6 @@ function ChatBox({
 				sx={{
 					padding: '0px 20px',
 					paddingBottom: '30px',
-					margin: '0 auto',
 					backgroundColor: '#ffffff',
 					paddingTop: '10px',
 					width: '100%',
