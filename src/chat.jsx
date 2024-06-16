@@ -276,11 +276,6 @@ function Receiver({ text, username, isConsecutive, isMobile }) {
 						ml: !isMobile && isConsecutive && 6,
 					}}
 				>
-					{!isConsecutive && (
-						<Grid item>
-							<Typography>{username}</Typography>
-						</Grid>
-					)}
 					<Grid item>
 						{!isConsecutive && (
 							<Typography
