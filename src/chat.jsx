@@ -428,6 +428,9 @@ function ChatBox({
 						onKeyDownCapture={(e) => {
 							e.key === 'Enter' && (e.preventDefault(), pushValue());
 						}}
+						onFocus={() => {document
+							.getElementById('scrollToBottom')
+							.scrollIntoView({ behavior: 'smooth' });}}
 						sx={{ padding: '10px 15px', borderRadius: '10px' }}
 					></OutlinedInput>
 				</FormControl>
