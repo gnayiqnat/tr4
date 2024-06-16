@@ -318,6 +318,7 @@ function NavBar({ isLoggedIn, chatViewActive }) {
 							sx={{
 								backgroundColor: 'white',
 								paddingTop: 1.75,
+								opacity: 0.95,
 							}}
 						>
 							<Toolbar
