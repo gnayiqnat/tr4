@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { AnimatePresence, motion, useAnimate } from 'framer-motion';
 import { enqueueSnackbar } from 'notistack';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IoSend } from 'react-icons/io5';
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from 'react-router-dom';
@@ -25,8 +25,8 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 
 	const [thisDudesUsername, setThisDudesUsername] = useState('');
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
-	const [scope, animate] = useAnimate();
 	const [messagesList, setMessagesList] = useState(['']);
+	const [shouldAnimate, setShouldAnimate] = useState(false)
 
 	useEffect(() => {
 		if (messagesList == '') {
@@ -36,7 +36,11 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 				.order('created_at', { ascending: false }) // Descending order
 				.limit(25)
 				.then((response) => {
-					!response.error && setMessagesList(response.data.reverse());
+					!response.error &&
+						(setMessagesList(response.data.reverse()),
+						document
+							.getElementById('scrollToBottom')
+							.scrollIntoView({ behavior: 'instant' }), setShouldAnimate(true));
 				});
 		}
 
@@ -50,8 +54,9 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 					table: 'chat_messages',
 				},
 				(payload) => {
-					payload.errors === null &&
+					if (payload.errors === null) {
 						setMessagesList((prev) => [...prev, payload.new]);
+					}
 				}
 			)
 			.subscribe();
@@ -62,10 +67,11 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 	}, []);
 
 	useEffect(() => {
-		document.getElementById('scrollToBottom') &&
+		if (shouldAnimate) {
 			document
 				.getElementById('scrollToBottom')
 				.scrollIntoView({ behavior: 'smooth' });
+		}
 	}, [messagesList]);
 
 	const [userID, setUserID] = useState('');
@@ -75,16 +81,6 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 		} else {
 			supabase.auth.getUser().then((r) => {
 				setUserID(r.data.user.id);
-
-				supabase
-					.from('usernames')
-					.select('username')
-					.eq('user_id', userID)
-					.then((r) => {
-						r.data[0].username != ''
-							? (document.cookie = `username=${r.data[0].username};`)
-							: console.error('Username not found for this user');
-					});
 			});
 		}
 	}, []);
@@ -101,8 +97,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 								preventDuplicate: true,
 						  }),
 						  navigate('/'))
-						: (animate(scope.current, { opacity: 1 }, { duration: 0.5 }),
-						  setIsLoggedIn(true))
+						: setIsLoggedIn(true)
 					: enqueueSnackbar('Server error, please try again later.', {
 							variant: 'error',
 					  });
@@ -111,7 +106,11 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 
 	return (
 		<AnimatePresence>
-			<Box sx={{ opacity: 0 }} ref={scope}>
+			<motion.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				transition={{ duration: 0.25, delay: 0.4, }}
+			>
 				<Box sx={{ overflow: 'hidden' }}>
 					<>
 						{/* 
@@ -190,7 +189,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 												/>
 											);
 									})}
-								<Box id='scrollToBottom' sx={{height: '70px'}} />
+								<Box id='scrollToBottom' sx={{ height: '70px' }} />
 							</Grid>
 							<Grid item>
 								<Grid
@@ -211,7 +210,7 @@ export default function Root({ chatViewActive, setchatViewActive }) {
 						</Grid>
 					</>
 				</Box>
-			</Box>
+			</motion.div>
 		</AnimatePresence>
 	);
 }
@@ -227,7 +226,7 @@ function Receiver({ text, username, isConsecutive, isMobile }) {
 						justifyContent: 'start',
 						gap: '10px',
 						mt: isConsecutive ? 0.5 : 2,
-						ml: (!isMobile && isConsecutive) && 6,
+						ml: !isMobile && isConsecutive && 6,
 					}}
 				>
 					{!isConsecutive && (
